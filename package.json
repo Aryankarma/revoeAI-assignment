@@ -1,0 +1,16 @@
+{
+  "name": "mern-app",
+  "version": "1.0.0",
+  "scripts": {
+    "start": "concurrently \"npm run server\" \"npm run client\"",
+    "server": "cd server && nodemon server.js",
+    "client": "cd ui && npm run dev"
+  },
+  "devDependencies": {
+    "concurrently": "^9.0.1"
+  },
+  "dependencies": {
+    "@shadcn/ui": "^0.0.4",
+    "nodemon": "^3.1.4"
+  }
+}
