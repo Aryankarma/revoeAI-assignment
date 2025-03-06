@@ -8,18 +8,17 @@ import Link from "next/link";
 import { ModeToggle } from "@/components/mode-toggle";
 import { useAuth } from "@/lib/useAuth";
 
-export default function Home() {
+export default function Dashboard() {
 
   const router = useRouter();
 
   // for authentication
-  const { isAuthenticated } = useAuth();
-  if (!isAuthenticated) return null; // Prevents flickering
+  const { isAuthenticated } = useAuth()
+  if (!isAuthenticated) return null
 
   return (  
     <div className="flex justify-center flex-col gap-3 text-center align-center min-w-screen min-h-screen">
-      <h1>You're at the home page</h1>
-      <Link className="hover:underline" href="/login"> Go To Login</Link>
+      <h1>This is Dashboard</h1>
     </div>
   );
 }

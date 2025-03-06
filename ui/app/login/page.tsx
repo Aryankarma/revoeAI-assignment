@@ -11,7 +11,7 @@ export default function Page() {
 
   useEffect(() => {
     if (isAuthenticated) {
-      router.replace("/")
+      router.replace("/dashboard")
     }
   }, [isAuthenticated, router]);
 

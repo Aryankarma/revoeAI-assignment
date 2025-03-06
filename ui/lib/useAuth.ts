@@ -6,7 +6,7 @@ export function useAuth() {
   const router = useRouter();
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
+    const token = localStorage.getItem("token")
 
     if (!token) {
       router.push("/login");
@@ -25,10 +25,10 @@ export function useAuth() {
         });
 
         if (res.ok) {
-          setIsAuthenticated(true);
+          setIsAuthenticated(true)
         } else {
-          localStorage.removeItem("token"); // Remove invalid token
-          router.push("/login");
+          localStorage.removeItem("token")
+          router.push("/login")
         }
       } catch (error) {
         console.error("Error verifying token:", error);
