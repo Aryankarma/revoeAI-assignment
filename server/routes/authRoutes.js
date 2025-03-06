@@ -63,4 +63,29 @@ router.post('/login', async (req, res) => {
     }
 });
 
+// route to validate the token recieved from frontedn
+router.post("/validate-token", async (req, res) => {
+    const token = req.header("Authorization")?.replace("Bearer ", "");
+    console.log("validating token")
+
+    if (!token) {
+        return res.status(401).json({ message: "No token provided" });
+    }
+
+    try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const user = await User.findById(decoded.id).select("-password");
+
+        if (!user) {
+            return res.status(401).json({ message: "Invalid token" });
+        }
+
+        console.log("token is valid")
+        res.json({ valid: true, user });
+    } catch (error) {
+        res.status(401).json({ message: "Token is not valid" });
+    }
+});
+
+
 export default router;
