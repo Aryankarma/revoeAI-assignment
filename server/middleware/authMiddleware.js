@@ -1,4 +1,5 @@
-import { verify } from 'jsonwebtoken';
+import pkg from 'jsonwebtoken';
+const { verify } = pkg;
 
 const protect = (req, res, next) => {
     const token = req.header('Authorization').replace('Bearer ', '');
