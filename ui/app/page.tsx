@@ -35,19 +35,12 @@ export default function Home() {
 
   useEffect(() => {
     if (isAuthenticated) {
-      setLoading(false);
+      router.push("/dashboard")
+    }else{
+      router.push("/login")
     }
   }, [isAuthenticated]);
-
-  useEffect(() => {
-    if (isClient) {
-      const sheetURL = prompt("Enter a sheet URL");
-      if (sheetURL) {
-        setSheetUrl(sheetURL);
-      }
-    }
-  }, [isClient]);
-
+  
   useEffect(() => {
     if (isClient && sheetUrl) {
       fetchData();
@@ -56,7 +49,7 @@ export default function Home() {
 
   const fetchData = async () => {
     if (!sheetUrl) {
-      alert("Please enter a valid Google Sheets URL");
+      // alert("Please enter a valid Google Sheets URL");
       return;
     }
 

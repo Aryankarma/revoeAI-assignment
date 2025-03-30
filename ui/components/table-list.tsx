@@ -2,8 +2,15 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { ExternalLink, RefreshCw, Plus } from "lucide-react";
-import axios from "axios";
+import {
+  ExternalLink,
+  RefreshCw,
+  Plus,
+  Pencil,
+  Trash,
+  LoaderCircle,
+} from "lucide-react";
+import axios, { AxiosResponse } from "axios";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -17,19 +24,23 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { mockFetchTables } from "@/lib/mock-data";
 import type { TableDashboard } from "@/lib/types";
 import { MagicCard } from "./magicui/magic-card";
+import { toast } from "sonner";
+import { NODE_ESM_RESOLVE_OPTIONS } from "next/dist/build/webpack-config";
 
 export function TableList() {
   const [tables, setTables] = useState<TableDashboard[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-
+  const [editingTable, setEditingTable] = useState<string | null>(null);
+  const [editedName, setEditedName] = useState<string>("");
+  const [deletingTable, setDeletingTable] = useState<string | null>(null);
 
   const loadAllTables = async () => {
     setLoading(true);
     setRefreshing(true);
 
     try {
-      const token = localStorage.getItem("token"); // Retrieve auth token
+      const token = localStorage.getItem("token");
       if (!token) throw new Error("No auth token found");
 
       const res = await axios.get(
@@ -68,20 +79,95 @@ export function TableList() {
     loadAllTables();
   };
 
+  const handleEditClick = (tableId: string, currentName: string) => {
+    setEditingTable(tableId);
+    setEditedName(currentName);
+  };
+
+  const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setEditedName(e.target.value);
+  };
+
+  const handleBlurOrEnter = async (tableId: string) => {
+    if (
+      !editedName.trim() ||
+      editedName.trim() ==
+        tables.filter((table) => table.id == tableId)[0].name.trim()
+    ) {
+      setEditingTable(null);
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) throw new Error("No auth token found");
+
+      await axios.put(
+        `http://localhost:5000/api/sheet/updateTableName/${tableId}`,
+        { name: editedName },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      setEditingTable(null);
+      handleRefresh(); // Refresh the table list
+    } catch (error) {
+      console.error("Error updating table name:", error);
+    }
+  };
+
+  const handleDeleteTable = async (tableId: string) => {
+    setDeletingTable(tableId);
+
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) throw new Error("No auth token found");
+      console.log(`http://localhost:5000/api/sheet/deleteTable/${tableId}`)
+
+      const res: any = await axios.delete(
+        `http://localhost:5000/api/sheet/deleteTable/${tableId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      console.log(res)
+
+      if (res.data.success) {
+        toast("Table deleted successfully.");
+        handleRefresh()
+      } else {
+        toast("Error while deleting table.");
+      }
+    } catch (error) {
+      console.error("Error deleting table:", error);
+      toast("An error occured while deleting table.");
+    } finally{
+      setDeletingTable(null)
+
+    }
+  };
+
   if (loading) {
     return (
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {[1, 2, 3, 4, 5, 6].map((i) => (
+        {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((i) => (
           <Card key={i}>
             <CardHeader>
-              <Skeleton className="h-6 w-1/2" />
-              <Skeleton className="h-4 w-3/4" />
+              <Skeleton className="h-4 w-1/2" />
+              <Skeleton className="h-3 w-3/4" />
             </CardHeader>
             <CardContent>
-              <Skeleton className="h-24 w-full" />
+              <Skeleton className="h-12 w-full" />
             </CardContent>
             <CardFooter>
-              <Skeleton className="h-9 w-full" />
+              <Skeleton className="h-6 w-full" />
             </CardFooter>
           </Card>
         ))}
@@ -134,7 +220,26 @@ export function TableList() {
           >
             <MagicCard>
               <CardHeader>
-                <CardTitle>{table.name}</CardTitle>
+                {editingTable === table.id ? (
+                  <input
+                    type="text"
+                    value={editedName}
+                    autoFocus
+                    onChange={handleNameChange}
+                    onBlur={() => handleBlurOrEnter(table.id)}
+                    onKeyDown={(e) =>
+                      e.key === "Enter" && handleBlurOrEnter(table.id)
+                    }
+                    className="w-full bg-transparent rounded-md focus:outline-none focus:ring-0 focus:ring-none"
+                  />
+                ) : (
+                  <CardTitle
+                    onClick={() => handleEditClick(table.id, table.name)}
+                    className="hover:cursor-text p-1 pl-0"
+                  >
+                    {table.name}
+                  </CardTitle>
+                )}
                 <CardDescription>
                   {table.columnCount} columns • Last updated:{" "}
                   {new Date(table.updatedAt).toLocaleString().slice(0, 17)}
@@ -143,16 +248,40 @@ export function TableList() {
               <CardContent>
                 <div className="text-sm text-muted-foreground">
                   <p>Connected to Google Sheet</p>
-                  <p className="mt-1 truncate">{table.googleSheetUrl}</p>
+                  <a
+                    href={table.googleSheetUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="mt-1 truncate hover:underline"
+                  >
+                    {table.googleSheetUrl.slice(0, 45) + "..."}
+                  </a>
                 </div>
               </CardContent>
-              <CardFooter>
+              <CardFooter className="flex justify-between items-center">
                 <Link href={`/tables/${table.id}`} className="w-full">
-                  <Button className="w-full">
+                  <Button className="w-full" variant="outline">
                     View Table
                     <ExternalLink className="ml-2 h-4 w-4" />
                   </Button>
                 </Link>
+
+                <div className="flex gap-2 ml-2">
+                  {/* <Button className="p-3" variant="secondary">
+                    <Pencil className="h-4 w-4" />
+                  </Button> */}
+                  <Button
+                    onClick={() => handleDeleteTable(table.id)}
+                    variant="destructive"
+                    className="p-3"
+                  >
+                    {deletingTable == table.id ? (
+                      <LoaderCircle className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <Trash className="h-4 w-4" />
+                    )}
+                  </Button>
+                </div>
               </CardFooter>
             </MagicCard>
           </Card>

@@ -67,10 +67,9 @@ router.post("/createSheet", protect, async (req, res) => {
 // get all the sheets the user has created
 router.get("/getAllTables", protect, async (req, res) => {
   try {
-    
     console.log("getting all sheets...");
 
-    const tablesDashboard = await Table.find({ user: req.user})
+    const tablesDashboard = await Table.find({ user: req.user })
       .select("_id name googleSheetUrl columns lastUpdated")
       .lean();
 
@@ -86,7 +85,6 @@ router.get("/getAllTables", protect, async (req, res) => {
       success: true,
       tables: tableDataDashboard,
     });
-
   } catch (error) {
     console.error("Error fetching tables:", error);
     res.status(500).json({
@@ -96,44 +94,104 @@ router.get("/getAllTables", protect, async (req, res) => {
   }
 });
 
+// get some particular table by id
+router.get("/getTableById/:id", protect, async (req, res) => {
+  try {
+    console.log("getting table by id: ", req.params.id);
 
-router.get("/getTableById/:id", protect, async (req, res)=>{
+    const tablesDetails = await Table.find({
+      user: req.user,
+      _id: req.params.id,
+    }).select("_id name googleSheetUrl columns rows lastUpdated createdAt");
 
-  try{
-    console.log("getting table by id: ", req.params.id)
-    
-    const tablesDetails = await Table.find({user: req.user, _id: req.params.id})
-      .select("_id name googleSheetUrl columns rows lastUpdated createdAt")
-    
-    const tableDataDetails = tablesDetails.map((table)=>({
+    const tableDataDetails = tablesDetails.map((table) => ({
       id: table._id,
       name: table.name,
       googleSheetUrl: table.googleSheetUrl,
       rows: table.rows,
       columns: table.columns,
       updatedAt: table.lastUpdated,
-      createdAt: table.createdAt
-    }))  
+      createdAt: table.createdAt,
+    }));
 
     res.status(200).json({
-      success:true,
-      tables: tableDataDetails
-    })
-
-
-  }catch(error){
+      success: true,
+      tables: tableDataDetails,
+    });
+  } catch (error) {
     res.status(500).json({
       success: false,
       message: error.message || "Failed to fetch tables",
-    })
+    });
+  }
+});
+
+// update table name by id
+router.put("/updateTableName/:id", protect, async (req, res) => {
+  const { name } = req.body;
+  const id = req.params.id;
+  const user = req.user;
+
+  if (!id || !user) {
+    return res.status(400).json({ success: false, message: "invalid request" });
   }
 
-})
+  try {
+    const table = await Table.findOne({ _id: id, user: user });
 
+    if (!table) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Table not found" });
+    }
 
+    // updating new name on the table
+    table.name = name;
+    await table.save();
 
+    res
+      .status(200)
+      .json({ success: true, message: "Table updated successfully." });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message || "Failed to update table name.",
+    });
+  }
+});
 
+// delete table by id
+router.delete("/deleteTable/:id", protect, async (req, res) => {
+  const id = req.params.id;
+  const user = req.user;
 
+  console.log(id, user)
+
+  if (!id || !user) {
+    return res.status(400).json({ success: false, message: "invalid request" });
+  }
+
+  try{
+    const table = await Table.findOne({_id: id, user: user})
+
+    if(!table){
+      return res
+      .status(404)
+      .json({ success: false, message: "Table not found" });
+    }
+
+    console.log("table found")
+    
+    await table.deleteOne()
+
+    console.log("deleting table")
+
+    res.status(200).json({success: true, message: "Table successfully deleted."})
+
+  } catch(error){
+    res.status(500).json({success: false, message: "An error occured while deleting table."})
+  }
+});
 
 // API route to get sheet data
 router.get("/getSheet", async (req, res) => {

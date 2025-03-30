@@ -23,6 +23,7 @@ import {
 } from "@/components/ui/select";
 import { mockCreateTable } from "@/lib/mock-data";
 import axios from "axios";
+import { toast } from "sonner";
 
 export default function CreateTablePage() {
   const router = useRouter();
@@ -54,7 +55,6 @@ export default function CreateTablePage() {
   };
 
   useEffect(()=>{
-    console.log([...columns])
   },[columns])
 
   const handleSubmitOld = async (e: React.FormEvent) => {
@@ -104,13 +104,11 @@ export default function CreateTablePage() {
         }
       );
 
-      console.log(response);
 
       if (response.data.error) throw new Error(response.data.error);
 
       setData(response.data.values);
       const transformedData = transformSheetData(response.data)
-      // console.log(transformedData)
 
       const tableData = {
         name: tableName,
@@ -122,7 +120,9 @@ export default function CreateTablePage() {
         // updatedAt: new Date(),
         // lastUpdated: new Date()
       };
-      
+
+      console.log("consoloin sjee response")
+      console.log(response.data.values)
 
       const saveResponse = await axios.post(
         "http://localhost:5000/api/sheet/createSheet",
@@ -135,14 +135,16 @@ export default function CreateTablePage() {
         }
       );
 
-      console.log("Save response:", saveResponse.data);
     
       // Check if save was successful
       if (saveResponse.data.success) {
-        console.log("Table created successfully, consoling response: ", saveResponse)
         // Redirect to dashboard
-        // router.push("/dashboard");
+        toast("Table created successfully.")
+        setTimeout(()=>{
+          router.push("/dashboard");
+        }, 750)
       } else {
+        toast("Error creatin table")
         alert("Error creating table: " + saveResponse.data.message);
       }
       
@@ -157,9 +159,9 @@ export default function CreateTablePage() {
     columns: Column[];
     rows: Row[];
   } {
-    console.log("sheetData : ", sheetData);
+
+    
     if (!sheetData || !sheetData.values || sheetData.values.length === 0) {
-      console.log("funciton not working");
       return { columns: [], rows: [] };
     }
 
@@ -222,7 +224,8 @@ export default function CreateTablePage() {
                 Make sure your Google Sheet is public, <a className="underline" href="http://">See how to make it public.</a>
               </p>
             </div>
-            <div className="space-y-4">
+            {/* Add columns */}
+            {/* <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <Label>Columns</Label>
                 <Button
@@ -283,7 +286,7 @@ export default function CreateTablePage() {
                   </div>
                 ))}
               </div>
-            </div>
+            </div> */}
           </CardContent>
           <CardFooter className="flex justify-end gap-2">
             <Button

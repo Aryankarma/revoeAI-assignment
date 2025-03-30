@@ -20,7 +20,7 @@ export function MagicCard({
   className,
   gradientSize = 85,
   gradientColor = "#55555520",
-  gradientOpacity = 0.3,
+  gradientOpacity = 0.2,
   gradientFrom = "#555555",
   gradientTo = "#999999",
 }: MagicCardProps) {
@@ -73,7 +73,7 @@ export function MagicCard({
   useEffect(() => {
     mouseX.set(-gradientSize);
     mouseY.set(-gradientSize);
-  }, [gradientSize, mouseX, mouseY]);
+  }, [gradientSize, mouseX, mouseY])
 
   return (
     <div
