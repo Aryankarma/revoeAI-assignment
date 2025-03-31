@@ -12,6 +12,15 @@ import { PlusCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { TableList } from "@/components/table-list";
 import axios from "axios";
+import { UserDropdown } from "@/components/ui/userDropdown";
+
+const data = {
+  user: {
+    name: "Aryan Karma",
+    email: "aryankarma29@gmail.com",
+    avatar: "/avatar.jpg",
+  }
+}
 
 export default function Dashboard() {
   const router = useRouter();
@@ -25,7 +34,7 @@ export default function Dashboard() {
       <header className="sticky top-0 z-10 border-b bg-background">
         <div className="flex h-16 items-center justify-between">
           <h1 className="text-xl font-semibold">Dashboard</h1>
-          <div className="flex gap-2">
+          <div className="flex gap-3">
 
           <Link href="/create-table">
             <Button variant={"outline"}>
@@ -34,6 +43,7 @@ export default function Dashboard() {
             </Button>
           </Link>
           <ModeToggle />
+          <UserDropdown user={data.user}/>
           </div>
         </div>
       </header>

@@ -9,6 +9,7 @@ export interface TableDashboard {
 export interface Table {
   id: string;
   name: string;
+  description: string;
   googleSheetUrl: string;
   columns: Column[];
   rows: Row[]

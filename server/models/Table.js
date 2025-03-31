@@ -19,6 +19,10 @@ const tableSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    description: {
+      type: String,
+      required: false,
+    },
     googleSheetUrl: {
       type: String,
       required: true,

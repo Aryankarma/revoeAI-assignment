@@ -31,6 +31,7 @@ export default function CreateTablePage() {
   const [sheetUrl, setSheetUrl] = useState<string>("");
   const [tableName, setTableName] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [tableDescription, setTableDescription] = useState("");
 
   const [data, setData] = useState([]);
   const [range, setRange] = useState("Sheet1!A1:D10");
@@ -54,44 +55,20 @@ export default function CreateTablePage() {
     );
   };
 
-  useEffect(()=>{
-  },[columns])
-
-  const handleSubmitOld = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-
-    try {
-      await mockCreateTable({
-        name: tableName,
-        googleSheetUrl: sheetUrl,
-        columns,
-      });
-
-      // Simulate API delay
-      setTimeout(() => {
-        router.push("/dashboard");
-      }, 1000);
-    } catch (error) {
-      console.error("Error creating table:", error);
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
+  
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsSubmitting(true)
+    e.preventDefault();
+    setIsSubmitting(true);
 
     if (!sheetUrl) {
       alert("Please enter a valid Google Sheets URL");
       return;
     }
-  
-    const token = localStorage.getItem('token');
+
+    const token = localStorage.getItem("token");
 
     try {
-
       // gets sheet data from google api
       const response = await axios.get(
         "http://localhost:5000/api/sheet/getSheet",
@@ -100,21 +77,21 @@ export default function CreateTablePage() {
             sheetUrl: sheetUrl,
           },
           headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-          }
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
         }
       );
-
 
       if (response.data.error) throw new Error(response.data.error);
 
       setData(response.data.values);
-      console.log("sheet data before transformation : ", response.data)
-      const transformedData = transformSheetData(response.data)
+      console.log("sheet data before transformation : ", response.data);
+      const transformedData = transformSheetData(response.data);
 
       const tableData = {
         name: tableName,
+        description: tableDescription,
         googleSheetUrl: sheetUrl,
         columns: [...transformedData.columns, ...columns],
         rows: transformedData.rows,
@@ -124,7 +101,7 @@ export default function CreateTablePage() {
         // lastUpdated: new Date()
       };
 
-      console.log("sheet data after transformation : ", tableData)
+      console.log("sheet data after transformation : ", tableData);
 
       // saves sheet data in mongodb
       const saveResponse = await axios.post(
@@ -132,35 +109,34 @@ export default function CreateTablePage() {
         tableData,
         {
           headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-          }
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
         }
       );
 
-      console.log("data sent on api 2 : ", tableData)
+      console.log("data sent on api 2 : ", tableData);
 
-      // what do we need to do ro refresh data -> 
+      // what do we need to do ro refresh data ->
       // run api 1 send the sheet url,
-      // transform the data 
+      // transform the data
       // check if the data is different when comparing to current data
       // if yes send the data to the db and fetch again or abort
 
       // Check if save was successful
       if (saveResponse.data.success) {
         // Redirect to dashboard
-        toast("Table created successfully.")
-        setTimeout(()=>{
+        toast("Table created successfully.");
+        setTimeout(() => {
           router.push("/dashboard");
-        }, 750)
+        }, 750);
       } else {
-        toast("Error creatin table")
+        toast("Error creatin table");
         alert("Error creating table: " + saveResponse.data.message);
       }
-      
     } catch (error) {
       console.error("Error fetching data:", error);
-    }finally {
+    } finally {
       setIsSubmitting(false);
     }
   };
@@ -169,8 +145,6 @@ export default function CreateTablePage() {
     columns: Column[];
     rows: Row[];
   } {
-
-    
     if (!sheetData || !sheetData.values || sheetData.values.length === 0) {
       return { columns: [], rows: [] };
     }
@@ -212,7 +186,9 @@ export default function CreateTablePage() {
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="space-y-2">
-              <Label htmlFor="table-name">Table Name</Label>
+              <Label htmlFor="table-name">
+                Table Name <span className="text-red-500">*</span>
+              </Label>
               <Input
                 id="table-name"
                 placeholder="Enter table name"
@@ -222,7 +198,9 @@ export default function CreateTablePage() {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="sheet-url">Google Sheet URL</Label>
+              <Label htmlFor="sheet-url">
+                Google Sheet URL <span className="text-red-500">*</span>
+              </Label>
               <Input
                 id="sheet-url"
                 placeholder="https://docs.google.com/spreadsheets/d/..."
@@ -231,8 +209,20 @@ export default function CreateTablePage() {
                 required
               />
               <p className="text-xs text-muted-foreground">
-                Make sure your Google Sheet is public, <a className="underline" href="http://">See how to make it public.</a>
+                Make sure your Google Sheet is public,{" "}
+                <a className="underline" href="http://">
+                  See how to make it public.
+                </a>
               </p>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="table-description">Description</Label>
+              <Input
+                id="table-description"
+                placeholder="Enter table description"
+                value={tableDescription}
+                onChange={(e) => setTableDescription(e.target.value)}
+              />
             </div>
             {/* Add columns */}
             {/* <div className="space-y-4">

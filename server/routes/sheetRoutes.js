@@ -26,7 +26,7 @@ async function getFirstSheetName(sheetId) {
 // create sheets with the user id in the DB
 router.post("/createSheet", protect, async (req, res) => {
   try {
-    const { name, googleSheetUrl, columns, rows } = req.body;
+    const { name, googleSheetUrl, columns, rows, description } = req.body;
 
     console.log("running create sheet function");
     // console.log(name, googleSheetUrl, columns, rows)
@@ -36,6 +36,7 @@ router.post("/createSheet", protect, async (req, res) => {
       name,
       googleSheetUrl,
       columns,
+      description,
       rows,
       user: req.user,
       lastUpdated: new Date(),
@@ -83,6 +84,7 @@ router.put("/updateSheet", protect, async (req, res) => {
     const tableDataDetails = {
       id: table._id,
       name: table.name,
+      description: table.description,
       googleSheetUrl: table.googleSheetUrl,
       rows: table.rows,
       columns: table.columns,
@@ -141,11 +143,12 @@ router.get("/getTableById/:id", protect, async (req, res) => {
     const tablesDetails = await Table.find({
       user: req.user,
       _id: req.params.id,
-    }).select("_id name googleSheetUrl columns rows lastUpdated createdAt");
+    }).select("_id name googleSheetUrl description columns rows lastUpdated createdAt");
 
     const tableDataDetails = tablesDetails.map((table) => ({
       id: table._id,
       name: table.name,
+      description: table.description,
       googleSheetUrl: table.googleSheetUrl,
       rows: table.rows,
       columns: table.columns,

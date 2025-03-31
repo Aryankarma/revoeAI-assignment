@@ -17,7 +17,7 @@ interface TableViewProps {
 
 export function TableView({ table, data }: TableViewProps) {
   const [currentPage, setCurrentPage] = useState(1)
-  const [rowsPerPage, setRowsPerPage] = useState(10)
+  const [rowsPerPage, setRowsPerPage] = useState(7)
   const [searchTerm, setSearchTerm] = useState("")
 
   const filteredData = data.rows.filter((row) =>
@@ -69,7 +69,7 @@ export function TableView({ table, data }: TableViewProps) {
               <SelectValue placeholder={rowsPerPage.toString()} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="5">5</SelectItem>
+              <SelectItem value="7">7</SelectItem>
               <SelectItem value="10">10</SelectItem>
               <SelectItem value="20">20</SelectItem>
               <SelectItem value="50">50</SelectItem>

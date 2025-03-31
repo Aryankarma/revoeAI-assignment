@@ -90,9 +90,7 @@ export function TableList() {
 
   const handleBlurOrEnter = async (tableId: string) => {
     if (
-      !editedName.trim() ||
-      editedName.trim() ==
-        tables.filter((table) => table.id == tableId)[0].name.trim()
+      !editedName.trim() || editedName.trim() == tables.filter((table) => table.id == tableId)[0].name.trim()
     ) {
       setEditingTable(null);
       return;
