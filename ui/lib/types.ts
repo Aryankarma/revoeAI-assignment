@@ -11,6 +11,7 @@ export interface Table {
   name: string;
   googleSheetUrl: string;
   columns: Column[];
+  rows: Row[]
   createdAt: string; // ISO date string
   updatedAt: string; // ISO date string
 };

@@ -40,7 +40,7 @@ export function AuthForm() {
 
       setTimeout(() => {
         router.push("/dashboard");
-      }, 800);
+      }, 350);
     } catch (error: any) {
       console.log("Authentication error", error);
 

@@ -7,8 +7,10 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { TableView } from "@/components/table-view";
-import type { TableData, Table } from "@/lib/types";
+import { getSheetDataFromGoogleAPI, saveDataInDB } from "@/lib/sheetRefresh";
+import type { TableData, Table, Row, Column } from "@/lib/types";
 import axios from "axios";
+import { toast } from "sonner";
 
 export default function TablePage({
   params: promiseParams,
@@ -21,6 +23,10 @@ export default function TablePage({
   const [tableData, setTableData] = useState<TableData | null>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+
+  useEffect(()=>{
+    console.log("table data updated: ", table)
+  },[table])
 
   const loadTableById = async () => {
     try {
@@ -42,9 +48,9 @@ export default function TablePage({
         setTable(response.data.tables[0]);
         const tableData = {
           rows: [...response.data.tables[0].rows],
-          lastUpdated: response.data.tables[0].updatedAt 
-        }
-        setTableData(tableData)
+          lastUpdated: response.data.tables[0].updatedAt,
+        };
+        setTableData(tableData);
       } else {
         console.error("Failed to fetch table: ", response.data.message);
       }
@@ -57,12 +63,51 @@ export default function TablePage({
   };
 
   useEffect(() => {
-    loadTableById()
+    loadTableById();
   }, [params.id]);
 
-  const handleRefresh = () => {
+  
+  // Compares two arrays of objects to determine if they contain the same key-value pairs, ignoring the _id field if present.
+  function areObjectsEqualIgnoringId(arr1: any, arr2: any) {
+    if (arr1?.length !== arr2?.length) return false;
+  
+    return arr1.every((item1: { [x: string]: any; _id: any; }) =>
+      arr2.some((item2: { [x: string]: any; _id: any; }) => {
+        const { _id: _, ...filteredItem1 } = item1;
+        const { _id: __, ...filteredItem2 } = item2;
+        return JSON.stringify(filteredItem1) === JSON.stringify(filteredItem2);
+      })
+    );
+  }
+  
+  const handleRefresh = async () => {
     setRefreshing(true);
-    loadTableById();
+
+    const response = await getSheetDataFromGoogleAPI(
+      table?.googleSheetUrl,
+      table?.name
+    );
+
+    console.log("data from google sheet api: ", response);
+    console.log("data we already had: ", table);
+
+    if ((areObjectsEqualIgnoringId(table?.rows, response?.rows) == true) && (areObjectsEqualIgnoringId(table?.columns, response?.columns) == true)) {
+      toast("No new changes detected. Data is already up-to-date.");
+    } else {
+      const savingDatainDbresponse = await saveDataInDB(response, params.id)
+
+      setTable(savingDatainDbresponse)
+      const tableData = {
+        rows: [...savingDatainDbresponse.rows],
+        lastUpdated: savingDatainDbresponse.updatedAt,
+      };
+      setTableData(tableData);
+
+      toast("Data successfully updated from Google Sheets.");
+
+    }
+
+    setRefreshing(false);
   };
 
   return (

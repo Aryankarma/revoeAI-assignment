@@ -37,8 +37,8 @@ export function TableList() {
 
   const loadAllTables = async () => {
     setLoading(true);
-    setRefreshing(true);
-
+    setRefreshing(true); 
+ 
     try {
       const token = localStorage.getItem("token");
       if (!token) throw new Error("No auth token found");
@@ -53,12 +53,12 @@ export function TableList() {
         }
       );
 
-      console.log("fetched tables data from new api - ", res.data);
+      console.log("fetched tables data from new api - ", res.data)
 
       if (res.data.success) {
         setTables(res.data.tables);
       } else {
-        console.error("Failed to fetch tables:", res.data.message);
+        console.error("Failed to fetch tables:", res.data.message)
       }
     } catch (error) {
       console.error("Error fetching tables:", error);
@@ -197,7 +197,7 @@ export function TableList() {
   }
 
   return (
-    <div>
+    <div >
       <div className="mb-6 flex items-center justify-between">
         <h2 className="text-lg font-medium">Your Tables</h2>
         <Button

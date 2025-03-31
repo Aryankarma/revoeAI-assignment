@@ -91,6 +91,8 @@ export default function CreateTablePage() {
     const token = localStorage.getItem('token');
 
     try {
+
+      // gets sheet data from google api
       const response = await axios.get(
         "http://localhost:5000/api/sheet/getSheet",
         {
@@ -108,6 +110,7 @@ export default function CreateTablePage() {
       if (response.data.error) throw new Error(response.data.error);
 
       setData(response.data.values);
+      console.log("sheet data before transformation : ", response.data)
       const transformedData = transformSheetData(response.data)
 
       const tableData = {
@@ -121,9 +124,9 @@ export default function CreateTablePage() {
         // lastUpdated: new Date()
       };
 
-      console.log("consoloin sjee response")
-      console.log(response.data.values)
+      console.log("sheet data after transformation : ", tableData)
 
+      // saves sheet data in mongodb
       const saveResponse = await axios.post(
         "http://localhost:5000/api/sheet/createSheet",
         tableData,
@@ -135,7 +138,14 @@ export default function CreateTablePage() {
         }
       );
 
-    
+      console.log("data sent on api 2 : ", tableData)
+
+      // what do we need to do ro refresh data -> 
+      // run api 1 send the sheet url,
+      // transform the data 
+      // check if the data is different when comparing to current data
+      // if yes send the data to the db and fetch again or abort
+
       // Check if save was successful
       if (saveResponse.data.success) {
         // Redirect to dashboard

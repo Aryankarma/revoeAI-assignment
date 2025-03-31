@@ -23,7 +23,7 @@ async function getFirstSheetName(sheetId) {
   return data.sheets.length > 0 ? data.sheets[0].properties.title : null;
 }
 
-// create sheets with the user id
+// create sheets with the user id in the DB
 router.post("/createSheet", protect, async (req, res) => {
   try {
     const { name, googleSheetUrl, columns, rows } = req.body;
@@ -60,6 +60,45 @@ router.post("/createSheet", protect, async (req, res) => {
     res.status(500).json({
       success: false,
       message: error.message || "Failed to create table",
+    });
+  }
+});
+
+// update sheets with the new columns and rows data in the DB
+router.put("/updateSheet", protect, async (req, res) => {
+  try {
+    const { tableData, tableId } = req.body;
+    const { columns, rows} = tableData;
+
+    const table = await Table.findOne({user: req.user, _id: tableId})
+
+    // updating the table with mew data (rows and columns)
+    table.rows = rows;
+    table.columns = columns;
+    
+    await table.save();
+
+    console.log("table saved in db");
+
+    const tableDataDetails = {
+      id: table._id,
+      name: table.name,
+      googleSheetUrl: table.googleSheetUrl,
+      rows: table.rows,
+      columns: table.columns,
+      updatedAt: table.lastUpdated,
+      createdAt: table.createdAt,
+    }
+
+    res.status(200).json({
+      success: true,
+      table: tableDataDetails
+    });
+  } catch (error) {
+    console.error("Error update table: ", error)
+    res.status(500).json({
+      success: false,
+      message: error.message || "Failed to update table",
     });
   }
 });
@@ -193,7 +232,8 @@ router.delete("/deleteTable/:id", protect, async (req, res) => {
   }
 });
 
-// API route to get sheet data
+
+// Get sheet data from sheet url through google sheet api
 router.get("/getSheet", async (req, res) => {
   const { sheetUrl } = req.query;
 
