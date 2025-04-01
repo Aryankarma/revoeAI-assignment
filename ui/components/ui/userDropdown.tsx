@@ -34,14 +34,10 @@ export function UserDropdown({
   const router = useRouter();
 
   const logout = async () => {
-    try {
-      await axios.post("http://localhost:8000/auth/logout");
-      router.push("/");
-    } catch (error) {
-      throw error;
-    } finally {
-      window.location.reload();
-    }
+    
+    localStorage.removeItem("token")
+    window.location.reload();
+    
   };
 
   return (

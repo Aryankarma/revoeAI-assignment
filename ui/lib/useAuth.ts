@@ -5,6 +5,10 @@ export function useAuth() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const router = useRouter();
 
+  useEffect(()=>{
+    console.log(isAuthenticated)
+  },[isAuthenticated])
+
   useEffect(() => {
     const token = localStorage.getItem("token")
 
