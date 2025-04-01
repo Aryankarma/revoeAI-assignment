@@ -26,7 +26,7 @@ async function getFirstSheetName(sheetId) {
 // create sheets with the user id in the DB
 router.post("/createSheet", protect, async (req, res) => {
   try {
-    const { name, googleSheetUrl, columns, rows, description } = req.body;
+    const { name, googleSheetUrl, columnCount, description } = req.body;
 
     console.log("running create sheet function");
     // console.log(name, googleSheetUrl, columns, rows)
@@ -35,9 +35,8 @@ router.post("/createSheet", protect, async (req, res) => {
     const newTable = new Table({
       name,
       googleSheetUrl,
-      columns,
+      columnCount,
       description,
-      rows,
       user: req.user,
       lastUpdated: new Date(),
     });
@@ -111,14 +110,14 @@ router.get("/getAllTables", protect, async (req, res) => {
     console.log("getting all sheets...");
 
     const tablesDashboard = await Table.find({ user: req.user })
-      .select("_id name googleSheetUrl columns lastUpdated")
+      .select("_id name googleSheetUrl columnCount lastUpdated")
       .lean();
 
     const tableDataDashboard = tablesDashboard.map((table) => ({
       id: table._id,
       name: table.name,
       googleSheetUrl: table.googleSheetUrl,
-      columnCount: table.columns.length,
+      columnCount: table.columnCount,
       updatedAt: table.lastUpdated,
     }));
 
@@ -143,15 +142,13 @@ router.get("/getTableById/:id", protect, async (req, res) => {
     const tablesDetails = await Table.find({
       user: req.user,
       _id: req.params.id,
-    }).select("_id name googleSheetUrl description columns rows lastUpdated createdAt");
+    }).select("_id name googleSheetUrl description lastUpdated createdAt"); // removed rows and columns
 
     const tableDataDetails = tablesDetails.map((table) => ({
       id: table._id,
       name: table.name,
       description: table.description,
       googleSheetUrl: table.googleSheetUrl,
-      rows: table.rows,
-      columns: table.columns,
       updatedAt: table.lastUpdated,
       createdAt: table.createdAt,
     }));

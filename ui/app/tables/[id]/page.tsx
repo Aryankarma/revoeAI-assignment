@@ -8,7 +8,7 @@ import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { TableView } from "@/components/table-view";
 import { getSheetDataFromGoogleAPI, saveDataInDB } from "@/lib/sheetRefresh";
-import type { TableData, Table, Row, Column } from "@/lib/types";
+import type { TableData, Table, Row, Column, SheetData } from "@/lib/types";
 import axios from "axios";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
@@ -51,9 +51,27 @@ export default function TablePage({
       console.log("fetched table by id: ", response.data);
 
       if (response.data.success) {
+
+        const sheetValues = await axios.get(
+          "http://localhost:5000/api/sheet/getSheet",
+          {
+            params: {
+              sheetUrl: response.data.values.googleSheetUrl,
+            },
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+  
+        if (response.data.error) throw new Error(response.data.error);  
+        const transformedData = transformSheetData(response.data);
+        
+  
         setTable(response.data.tables[0]);
         const tableData = {
-          rows: [...response.data.tables[0].rows],
+          rows: transformedData.rows,
           lastUpdated: response.data.tables[0].updatedAt,
         };
         setTableData(tableData);
@@ -76,7 +94,38 @@ export default function TablePage({
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setEditedName(e.target.value);
   };
+  
 
+  function transformSheetData(sheetData: SheetData): {
+    columns: Column[];
+    rows: Row[];
+  } {
+    if (!sheetData || !sheetData.values || sheetData.values.length === 0) {
+      return { columns: [], rows: [] };
+    }
+
+    const headers: string[] = sheetData.values[0]; // First row as column names
+    const rowsData: string[][] = sheetData.values.slice(1); // Remaining rows as data
+
+    // Generate columns array
+    const columns: Column[] = headers.map((header) => ({
+      name: header.trim(), // Trim whitespace
+      type: "text", // Default type (you can change based on logic)
+    }));
+
+    // Generate rows array
+    const rows: Row[] = rowsData.map((row) => {
+      let obj: Row = {};
+      headers.forEach((header, index) => {
+        obj[header.trim()] = row[index] || ""; // Handle missing values
+      });
+      return obj;
+    });
+
+    return { columns, rows };
+  }
+
+  
   const handleBlurOrEnter = async (tableId: string) => {
     if (
       !editedName.trim() || editedName.trim() == table?.name ) {
@@ -234,7 +283,7 @@ export default function TablePage({
             </h1>
           )}
           <p className="text-muted-foreground mb-6">
-            Connected to{" "}
+            Connected to
             <a
               href={table.googleSheetUrl}
               target="_blank"
@@ -242,8 +291,8 @@ export default function TablePage({
               rel="noopener noreferrer"
             >
               Google Sheet
-            </a>{" "}
-            • Last updated:{" "}
+            </a>
+            • Last updated:
             {new Date(table.updatedAt).toLocaleString().slice(0, 17)}
           </p>
           <p className="text-muted-foreground mb-6">{table.description}</p>

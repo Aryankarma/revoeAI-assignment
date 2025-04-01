@@ -18,7 +18,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useRouter } from "next/navigation";
-import axios, { AxiosHeaders } from "axios";
 
 export function UserDropdown({
   user,
@@ -34,36 +33,21 @@ export function UserDropdown({
   const router = useRouter();
 
   const logout = async () => {
-    try {
-      await axios.post("http://localhost:8000/auth/logout");
-      router.push("/");
-    } catch (error) {
-      throw error;
-    } finally {
-      window.location.reload();
-    }
+    localStorage.removeItem("token");
+    window.location.reload();
   };
 
   return (
-    // <SidebarMenu>
-    //   <SidebarMenuItem>
     <>
-      {" "}
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
         <Button variant="secondary" size="icon" className="z-50">
-          {/* <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" /> */}
             <Avatar className="h-8 w-8 rounded-lg">
               <AvatarImage src={user.avatar} alt={user.name} />
               <AvatarFallback className="rounded-lg">
                 {user.name.charAt(0).toUpperCase()}
               </AvatarFallback>
             </Avatar>
-            {/* <div className="flex-1 text-left text-sm leading-tight">
-              <span className="truncate font-semibold">{user.name}</span>
-              <span className="truncate text-xs">{user.email}</span>
-            </div>
-            <ChevronsUpDown className="ml-auto size-4" /> */}
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent
@@ -114,8 +98,6 @@ export function UserDropdown({
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
-      {/* //   </SidebarMenuItem> */}
-      {/* // </SidebarMenu> */}
     </>
   );
 }

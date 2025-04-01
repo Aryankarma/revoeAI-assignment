@@ -93,8 +93,7 @@ export default function CreateTablePage() {
         name: tableName,
         description: tableDescription,
         googleSheetUrl: sheetUrl,
-        columns: [...transformedData.columns, ...columns],
-        rows: transformedData.rows,
+        columnCount: transformedData.columns.length,
         // The following fields will be added by MongoDB automatically with timestamps: true
         // createdAt: new Date(),
         // updatedAt: new Date(),
