@@ -128,7 +128,7 @@ export default function CreateTablePage() {
         // Redirect to dashboard
         toast("Table created successfully.");
         setTimeout(() => {
-          router.push("/dashboard");
+          router.push("/app/dashboard");
         }, 750);
       } else {
         toast("Error creatin table");

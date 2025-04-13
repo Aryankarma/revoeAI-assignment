@@ -1,23 +1,23 @@
+// hooks/useAuth.ts
+"use client";
+
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
-export function useAuth() {
+export function useAuth(redirect = true) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [loading, setLoading] = useState(true);
   const router = useRouter();
 
-  useEffect(()=>{
-    console.log(isAuthenticated)
-  },[isAuthenticated])
-
   useEffect(() => {
-    const token = localStorage.getItem("token")
+    const token = localStorage.getItem("token");
 
     if (!token) {
-      router.push("/login");
+      setLoading(false);
+      // if (redirect) router.push("/app/auth");
       return;
     }
 
-    // Validate token with the backend
     const verifyToken = async () => {
       try {
         const res = await fetch("http://localhost:5000/api/auth/validate-token", {
@@ -29,19 +29,21 @@ export function useAuth() {
         });
 
         if (res.ok) {
-          setIsAuthenticated(true)
+          setIsAuthenticated(true);
         } else {
-          localStorage.removeItem("token")
-          router.push("/login")
+          localStorage.removeItem("token");
+          if (redirect) router.push("/app/auth");
         }
-      } catch (error) {
-        console.error("Error verifying token:", error);
-        router.push("/login");
+      } catch (err) {
+        console.error("Auth check failed:", err);
+        if (redirect) router.push("/app/auth");
+      } finally {
+        setLoading(false);
       }
     };
 
     verifyToken();
-  }, [router]);
+  }, [router, redirect]);
 
-  return { isAuthenticated };
+  return { isAuthenticated, loading };
 }

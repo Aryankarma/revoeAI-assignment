@@ -34,15 +34,11 @@ export function UserDropdown({
   const router = useRouter();
 
   const logout = async () => {
-    
     localStorage.removeItem("token")
-    window.location.reload();
-    
+    router.push("/")
   };
 
   return (
-    // <SidebarMenu>
-    //   <SidebarMenuItem>
     <>
       {" "}
       <DropdownMenu>

@@ -183,7 +183,7 @@ export function TableList() {
           </CardDescription>
         </CardHeader>
         <CardFooter>
-          <Link href="/create-table">
+          <Link href="/app/create-table">
             <Button>
               <Plus className="mr-2 h-4 w-4" />
               Create Table
@@ -257,7 +257,7 @@ export function TableList() {
                 </div>
               </CardContent>
               <CardFooter className="flex justify-between items-center">
-                <Link href={`/tables/${table.id}`} className="w-full">
+                <Link href={`/app/tables/${table.id}`} className="w-full">
                   <Button className="w-full" variant="outline">
                     View Table
                     <ExternalLink className="ml-2 h-4 w-4" />
@@ -286,5 +286,5 @@ export function TableList() {
         ))}
       </div>
     </div>
-  );
+  )
 }

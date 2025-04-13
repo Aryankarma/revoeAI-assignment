@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
 import { useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -14,6 +15,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
+import { useSearchParams } from "next/navigation";
 
 export function AuthForm() {
   const [email, setEmail] = useState("");
@@ -21,6 +23,19 @@ export function AuthForm() {
   const [password, setPassword] = useState("");
   const [isRegister, setIsRegister] = useState(false);
   const router = useRouter();
+  const params = useSearchParams()
+  
+  useEffect(()=>{
+    const mode = params.get('q');
+    if (mode === 'register') {
+      setIsRegister(true)
+    }else if(mode === 'login'){
+      setIsRegister(false)
+    }else{
+      console.log(params)
+      router.push('/app/dashboard')
+    }
+  },[params])
 
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -39,8 +54,8 @@ export function AuthForm() {
       toast(isRegister ? "Registration Successful" : "Login Successful");
 
       setTimeout(() => {
-        router.push("/dashboard");
-      }, 350);
+        router.push("/app/dashboard");
+      }, 100);
     } catch (error: any) {
       console.log("Authentication error", error);
 

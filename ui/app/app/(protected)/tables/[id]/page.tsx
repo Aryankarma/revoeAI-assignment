@@ -252,7 +252,7 @@ export default function TablePage({
       ) : (
         <Card className="p-6 text-center">
           <p>Table not found or error loading data</p>
-          <Button onClick={() => router.push("/dashboard")} className="mt-4">
+          <Button onClick={() => router.push("/app/dashboard")} className="mt-4">
             Return to Dashboard
           </Button>
         </Card>

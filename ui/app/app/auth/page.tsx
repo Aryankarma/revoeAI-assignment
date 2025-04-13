@@ -7,13 +7,18 @@ import { useEffect } from "react";
 export default function Page() {
 
   const router = useRouter();
-  const { isAuthenticated } = useAuth();
-
+  const { isAuthenticated, loading } = useAuth();
+  
   useEffect(() => {
     if (isAuthenticated) {
-      router.replace("/dashboard")
+      router.replace("/app/dashboard")
     }
   }, [isAuthenticated, router]);
+
+  
+    if(loading){
+      return <p>Loading...</p>
+    }
 
   return (
     <div className="flex min-h-svh w-full items-center justify-center p-6 md:p-10">

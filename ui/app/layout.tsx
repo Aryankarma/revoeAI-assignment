@@ -32,7 +32,7 @@ export default function RootLayout({
         <script src="https://apis.google.com/js/api.js"></script>
       </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased mx-8`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <ThemeProvider
           attribute="class"
