@@ -48,7 +48,7 @@ export default function Dashboard() {
             <Input
               type="text"
               placeholder={"Search sheets"}
-              className="pl-10 rounded-full border-none"
+              className="pl-10 rounded-full"
               value={query}
               onChange={handleInputChange}
             />
