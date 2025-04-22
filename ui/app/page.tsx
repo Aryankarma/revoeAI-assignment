@@ -20,8 +20,11 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { redirect } from "next/dist/server/api-utils";
+import { useTheme } from "next-themes";
 
 export default function LandingPage() {
+  const theme = useTheme();
+
   return (
     <div className="flex min-h-screen flex-col">
       <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -137,7 +140,11 @@ export default function LandingPage() {
               <div className="flex items-center justify-center">
                 <div className="relative w-full max-w-[700px] overflow-hidden rounded-lg">
                   <Image
-                    src="/landing/sheetsync.png"
+                    src={
+                      theme.theme === "dark"
+                        ? "/landing/sheetsyncdark.png"
+                        : "/landing/sheetsync.png"
+                    }
                     alt="SheetSync Dashboard"
                     width={650}
                     height={400}
@@ -278,7 +285,11 @@ export default function LandingPage() {
             </div>
             <div className="mx-auto mt-12 max-w-4xl overflow-hidden rounded-xl border shadow-lg">
               <Image
-                src="/landing/sheetsync-table-view.png"
+                src={
+                  theme.theme === "dark"
+                    ? "/landing/sheetsync-table-view-dark.png"
+                    : "/landing/sheetsync-table-view.png"
+                }
                 alt="SheetSync Table View"
                 width={800}
                 height={500}
@@ -527,11 +538,11 @@ export default function LandingPage() {
         <section className="py-20">
           <div className="px-12 md:px-6">
             <div className="flex flex-col items-center justify-center space-y-4 text-center">
-              <div className="space-y-2">
-                <h2 className="text-3xl font-[900] tracking-tight sm:text-4xl md:text-5xl">
+              <div className="space-y-2 max-w-[740px]">
+                <h2 className="text-3xl font-[900] trnpacking-tight sm:text-4xl md:text-5xl">
                   Ready to transform how you work with Google Sheets?
                 </h2>
-                <p className="max-w-[900px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
+                <p className=" mx-auto text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
                   Join thousands of users who are already managing their data
                   more efficiently with SheetSync.
                 </p>
@@ -550,11 +561,11 @@ export default function LandingPage() {
         </section>
       </main>
       <footer className="border-t bg-muted">
-        <div className="px-12 flex flex-col gap-6 py-8 md:py-12">
+        <div className="px-12 flex flex-col gap-4 py-8 md:py-12">
           <div className="flex flex-col gap-6 md:flex-row md:justify-between">
             <div className="space-y-4">
-              <div className="flex items-center gap-2">
-                <Table className="h-6 w-6 text-primary" />
+              <div className="flex items-start flex-col gap-2">
+                {/* <Table className="h-6 w-6 text-primary" /> */}
                 <span className="text-xl font-bold">SheetSync</span>
               </div>
               <p className="max-w-[350px] text-sm text-muted-foreground">
@@ -644,7 +655,7 @@ export default function LandingPage() {
               </div>
             </div>
           </div>
-          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+          <div className="flex justify-between gap-4">
             <p className="text-sm text-muted-foreground">
               &copy; {new Date().getFullYear()} SheetSync. All rights reserved.
             </p>

@@ -10,6 +10,7 @@ import { TableList } from "@/components/table-list";
 import { UserDropdown } from "@/components/ui/userDropdown";
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
+import { useTheme } from "next-themes"
 
 const data = {
   user: {
@@ -22,6 +23,7 @@ const data = {
 export default function Dashboard() {
   const router = useRouter();
   const [query, setQuery] = useState("");
+  
 
   // for authentication
   const { isAuthenticated, loading } = useAuth();
@@ -48,7 +50,7 @@ export default function Dashboard() {
             <Input
               type="text"
               placeholder={"Search sheets"}
-              className="pl-10 rounded-full"
+              className="pl-10"
               value={query}
               onChange={handleInputChange}
             />
