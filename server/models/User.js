@@ -17,7 +17,7 @@ if (!uri) {
 mongoose.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true }).then(() => {
   console.log("Connected");
 });
-
+ 
 const userSchema = new mongoose.Schema({
   name: {
     type: String,
