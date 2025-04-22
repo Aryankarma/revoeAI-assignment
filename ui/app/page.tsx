@@ -220,8 +220,8 @@ export default function LandingPage() {
               ].map(({ icon, title, desc }, i) => (
                 <div
                   key={i}
-                  className="group flex flex-col items-center space-y-3 rounded-2xl border bg-background p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-primary hover:shadow-md hover:shadow-primary/20"
-                >
+                  className="group flex flex-col items-center space-y-3 rounded-2xl border border-transparent bg-background p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-black/80 hover:shadow-md hover:shadow-primary/20 cursor-default"
+                  >
                   <div className="rounded-full bg-primary/10 p-3 transition-colors duration-300 group-hover:bg-primary/20">
                     {icon}
                   </div>
@@ -316,7 +316,7 @@ export default function LandingPage() {
                 </p>
               </div>
             </div>
-            <div className="mx-auto grid max-w-5xl gap-6 py-12 md:grid-cols-3 lg:gap-12">
+            {/* <div className="mx-auto grid max-w-5xl gap-6 py-12 md:grid-cols-3 lg:gap-12">
               <div className="flex flex-col rounded-lg border bg-background p-6 shadow-sm">
                 <div className="mb-4">
                   <h3 className="text-xl font-bold">Free</h3>
@@ -412,6 +412,68 @@ export default function LandingPage() {
                 <Button variant="outline" className="mt-auto">
                   Contact Sales
                 </Button>
+              </div>
+            </div> */}
+            <div className="mx-auto grid max-w-3xl gap-6 py-12 md:grid-cols-2 lg:gap-12">
+              <div className="flex flex-col rounded-2xl hover:shadow-lg hover:scale-[1.03] transition-all duration-500  bg-background p-6 shadow-sm">
+                <div className="mb-4">
+                  <h3 className="text-xl font-bold">Free</h3>
+                  <p className="text-muted-foreground">SheetSync Free</p>
+                  <div className="mt-4 flex items-baseline">
+                    <span className="text-3xl font-bold">$0</span>
+                    <span className="ml-1 text-muted-foreground">/month</span>
+                  </div>
+                </div>
+                <ul className="mb-6 mt-4 space-y-2">
+                  <li className="flex items-center">
+                    <CheckCircle2 className="mr-2 h-4 w-4 text-primary" />
+                    <span>Up to 3 tables</span>
+                  </li>
+                  <li className="flex items-center">
+                    <CheckCircle2 className="mr-2 h-4 w-4 text-primary" />
+                    <span>Basic search functionality</span>
+                  </li>
+                  <li className="flex items-center">
+                    <CheckCircle2 className="mr-2 h-4 w-4 text-primary" />
+                    <span>Manual refresh</span>
+                  </li>
+                </ul>
+                <Button variant="outline" className="mt-auto transition-all duration-500">
+                  Get Started
+                </Button>
+              </div>
+              {/* <div className="flex flex-col rounded-lg border bg-background p-6 shadow-sm relative scale-110"> */}
+              <div className="flex flex-col bg-[#191919] transition-all hover:scale-[1.03] hover:bg-[#121212] text-white  rounded-2xl  hover:shadow-2xl duration-500  p-6 shadow-sm relative">
+                {/* <div className="absolute -top-4 left-0 right-0 mx-auto w-fit rounded-full bg-primary px-3 py-1 text-xs font-medium text-primary-foreground">
+                  Popular
+                </div> */}
+                <div className="mb-4">
+                  <h3 className="text-xl font-bold">Pro</h3>
+                  <p className="text-muted-foreground">SheetSync Pro</p>
+                  <div className="mt-4 flex items-baseline">
+                    <span className="text-3xl font-bold">$12</span>
+                    <span className="ml-1 text-muted-foreground">/month</span>
+                  </div>
+                </div>
+                <ul className="mb-6 mt-4 space-y-2">
+                  <li className="flex items-center">
+                    <CheckCircle2 className="mr-2 h-4 w-4 text-primary text-green-500" />
+                    <span>Up to 20 tables</span>
+                  </li>
+                  <li className="flex items-center">
+                    <CheckCircle2 className="mr-2 h-4 w-4 text-primary text-green-500" />
+                    <span>Advanced search</span>
+                  </li>
+                  <li className="flex items-center">
+                    <CheckCircle2 className="mr-2 h-4 w-4 text-primary text-green-500" />
+                    <span>Auto-refresh (every 5 min)</span>
+                  </li>
+                  <li className="flex items-center">
+                    <CheckCircle2 className="mr-2 h-4 w-4 text-primary text-green-500" />
+                    <span>Custom column types</span>
+                  </li>
+                </ul>
+                <Button variant="secondary" className="mt-auto transition-all duration-500">Get Started</Button>
               </div>
             </div>
           </div>

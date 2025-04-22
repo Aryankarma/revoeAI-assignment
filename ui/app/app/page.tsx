@@ -6,16 +6,16 @@ import { useEffect } from "react";
 
 export default function Page() {
 
-  // const router = useRouter();
-  // const { isAuthenticated } = useAuth();
+  const router = useRouter();
+  const { isAuthenticated } = useAuth();
 
-  // useEffect(() => {
-  //   if (isAuthenticated) {
-  //     router.replace("/app/dashboard")
-  //   }else{
-  //       router.replace("/")
-  //   }
-  // }, [isAuthenticated, router]);
+  useEffect(() => {
+    if (isAuthenticated) {
+      router.replace("/app/dashboard")
+    }else{
+        router.replace("/")
+    }
+  }, [isAuthenticated, router]);
 
   return (
     <div className="flex min-h-svh w-full items-center justify-center p-6 md:p-10">

@@ -16,6 +16,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { useSearchParams } from "next/navigation";
+import Link from "next/link";
 
 export function AuthForm() {
   const [email, setEmail] = useState("");
@@ -23,19 +24,19 @@ export function AuthForm() {
   const [password, setPassword] = useState("");
   const [isRegister, setIsRegister] = useState(false);
   const router = useRouter();
-  const params = useSearchParams()
-  
-  useEffect(()=>{
-    const mode = params.get('q');
-    if (mode === 'register') {
-      setIsRegister(true)
-    }else if(mode === 'login'){
-      setIsRegister(false)
-    }else{
-      console.log(params)
-      router.push('/app/dashboard')
+  const params = useSearchParams();
+
+  useEffect(() => {
+    const mode = params.get("q");
+    if (mode === "register") {
+      setIsRegister(true);
+    } else if (mode === "login") {
+      setIsRegister(false);
+    } else {
+      console.log(params);
+      router.push("/app/dashboard");
     }
-  },[params])
+  }, [params]);
 
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -61,6 +62,11 @@ export function AuthForm() {
 
       toast(`Authentication Failed: ${error?.response?.data?.message}`);
     }
+  };
+
+  const handleClick = (e: { preventDefault: () => void; }) => {
+    e.preventDefault();
+    router.replace(`/app/auth?q=${!isRegister ? "register" : "login"}`);
   };
 
   return (
@@ -116,11 +122,10 @@ export function AuthForm() {
             {isRegister
               ? "Already have an account? "
               : "Don't have an account? "}
-            <span
-              className="underline cursor-pointer"
-              onClick={() => setIsRegister(!isRegister)}
-            >
-              {isRegister ? "Login" : "Sign up"}
+            <span className="underline cursor-pointer">
+              <a href="#" onClick={handleClick}>
+                {isRegister ? "Login" : "Sign up"}
+              </a>
             </span>
           </div>
         </form>
