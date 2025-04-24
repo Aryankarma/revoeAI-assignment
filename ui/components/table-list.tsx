@@ -21,7 +21,6 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { mockFetchTables } from "@/lib/mock-data";
 import type { TableDashboard } from "@/lib/types";
 import { MagicCard } from "./magicui/magic-card";
 import { toast } from "sonner";

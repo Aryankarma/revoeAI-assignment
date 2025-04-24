@@ -21,7 +21,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { mockCreateTable } from "@/lib/mock-data";
 import axios from "axios";
 import { toast } from "sonner";
 

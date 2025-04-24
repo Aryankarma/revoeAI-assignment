@@ -1,9 +1,13 @@
+// open telementry
+// import "./tracer.js"
+
 import express, { json } from 'express';
 import { connect } from 'mongoose';
 import cors from 'cors';
 import { config } from 'dotenv';
 import authRoutes from './routes/authRoutes.js';
 import sheetRoutes from './routes/sheetRoutes.js';
+import paymentRoutes from './routes/paymentRoutes.js';
 import protect from './middleware/authMiddleware.js';
 
 config();
@@ -41,3 +45,4 @@ app.listen(PORT, () => {
 
 app.use('/api/auth', authRoutes);
 app.use('/api/sheet', protect, sheetRoutes);
+app.use('/api/payment', protect, paymentRoutes);

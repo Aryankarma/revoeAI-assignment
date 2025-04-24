@@ -19,11 +19,107 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { redirect } from "next/dist/server/api-utils";
 import { useTheme } from "next-themes";
+import { useState, useEffect } from "react";
+import axios from "axios";
+import { toast } from "sonner";
 
 export default function LandingPage() {
   const theme = useTheme();
+  const [razorpayLoaded, setRazorpayLoaded] = useState(false);
+  const [year, setYear] = useState<number | null>(null); // for footer
+
+  useEffect(() => {
+    setYear(new Date().getFullYear());
+  }, []);
+
+
+  useEffect(() => {
+    const script = document.createElement("script");
+    script.src = "https://checkout.razorpay.com/v1/checkout.js";
+    script.onload = () => {
+      setRazorpayLoaded(true);
+    };
+    document.body.appendChild(script);
+    console.log("scipt loaded");
+  }, []);
+
+  const handleSubscribe = async () => {
+    if (!razorpayLoaded) {
+      alert("Razorpay SDK not loaded yet. Please wait.");
+      return;
+    }
+
+    // const res = await fetch("/api/subscribe/createSubscription", { method: "POST" });
+    // const data = await res.json();
+
+    const token = localStorage.getItem("token");
+    if (!token) throw new Error("No auth token found");
+
+    console.log(token);
+
+    try {
+      const { data } = await axios.get(
+        "http://localhost:5000/api/payment/createSubscription",
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      console.log(data);
+
+      const options = {
+        key: process.env.NEXT_PUBLIC_RAZORPAY_API_KEY, // Razorpay key
+        subscription_id: data.subscriptionId, // From backend
+        name: "SheetSync Pro",
+        description: "Pro Plan Subscription",
+        theme: { color: "#3399cc" },
+        handler: async function (response: any) {
+          // Send payment response to backend to verify
+          // raorpay_payment_id, razorpay_signature, razorpay_subscription_id
+          toast("Verifying Payment...");
+          console.log(response);
+
+          const verifyStatus = await fetch(
+            "http://localhost:5000/api/payment/verify",
+            {
+              method: "POST",
+              body: JSON.stringify(response),
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          );
+
+          console.log("verifyStatus: ", verifyStatus);
+          
+          if (!verifyStatus.ok) {
+            const error = await verifyStatus.json();
+            console.log("error", error);
+            toast(`Payment Verification Failed: ${error?.message}`);
+            return;
+          }
+
+          alert("Payment Successful");
+          // Update UI, redirect to dashboard, etc.
+        },
+        prefill: {
+          name: "User Name",
+          email: "user@example.com",
+        },
+      };
+
+      const rzp = new (window as any).Razorpay(options);
+      rzp.open();
+    } catch (error: any) {
+      console.log("Authentication error", error);
+      toast(`Authentication Failed: ${error?.response?.data?.message}`);
+    }
+  };
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -221,7 +317,7 @@ export default function LandingPage() {
                 <div
                   key={i}
                   className="group flex flex-col items-center space-y-3 rounded-2xl border border-transparent bg-background p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-black/80 hover:shadow-md hover:shadow-primary/20 cursor-default"
-                  >
+                >
                   <div className="rounded-full bg-primary/10 p-3 transition-colors duration-300 group-hover:bg-primary/20">
                     {icon}
                   </div>
@@ -316,104 +412,7 @@ export default function LandingPage() {
                 </p>
               </div>
             </div>
-            {/* <div className="mx-auto grid max-w-5xl gap-6 py-12 md:grid-cols-3 lg:gap-12">
-              <div className="flex flex-col rounded-lg border bg-background p-6 shadow-sm">
-                <div className="mb-4">
-                  <h3 className="text-xl font-bold">Free</h3>
-                  <p className="text-muted-foreground">For personal use</p>
-                  <div className="mt-4 flex items-baseline">
-                    <span className="text-3xl font-bold">$0</span>
-                    <span className="ml-1 text-muted-foreground">/month</span>
-                  </div>
-                </div>
-                <ul className="mb-6 mt-4 space-y-2">
-                  <li className="flex items-center">
-                    <CheckCircle2 className="mr-2 h-4 w-4 text-primary" />
-                    <span>Up to 3 tables</span>
-                  </li>
-                  <li className="flex items-center">
-                    <CheckCircle2 className="mr-2 h-4 w-4 text-primary" />
-                    <span>Basic search functionality</span>
-                  </li>
-                  <li className="flex items-center">
-                    <CheckCircle2 className="mr-2 h-4 w-4 text-primary" />
-                    <span>Manual refresh</span>
-                  </li>
-                </ul>
-                <Button variant="outline" className="mt-auto">
-                  Get Started
-                </Button>
-              </div>
-              <div className="flex flex-col rounded-lg border bg-background p-6 shadow-sm relative scale-110">
-                <div className="absolute -top-4 left-0 right-0 mx-auto w-fit rounded-full bg-primary px-3 py-1 text-xs font-medium text-primary-foreground">
-                  Popular
-                </div>
-                <div className="mb-4">
-                  <h3 className="text-xl font-bold">Pro</h3>
-                  <p className="text-muted-foreground">For professionals</p>
-                  <div className="mt-4 flex items-baseline">
-                    <span className="text-3xl font-bold">$12</span>
-                    <span className="ml-1 text-muted-foreground">/month</span>
-                  </div>
-                </div>
-                <ul className="mb-6 mt-4 space-y-2">
-                  <li className="flex items-center">
-                    <CheckCircle2 className="mr-2 h-4 w-4 text-primary" />
-                    <span>Up to 20 tables</span>
-                  </li>
-                  <li className="flex items-center">
-                    <CheckCircle2 className="mr-2 h-4 w-4 text-primary" />
-                    <span>Advanced search</span>
-                  </li>
-                  <li className="flex items-center">
-                    <CheckCircle2 className="mr-2 h-4 w-4 text-primary" />
-                    <span>Auto-refresh (every 5 min)</span>
-                  </li>
-                  <li className="flex items-center">
-                    <CheckCircle2 className="mr-2 h-4 w-4 text-primary" />
-                    <span>Custom column types</span>
-                  </li>
-                </ul>
-                <Button className="mt-auto">Get Started</Button>
-              </div>
-              <div className="flex flex-col rounded-lg border bg-background p-6 shadow-sm">
-                <div className="mb-4">
-                  <h3 className="text-xl font-bold">Enterprise</h3>
-                  <p className="text-muted-foreground">
-                    For teams & businesses
-                  </p>
-                  <div className="mt-4 flex items-baseline">
-                    <span className="text-3xl font-bold">$29</span>
-                    <span className="ml-1 text-muted-foreground">/month</span>
-                  </div>
-                </div>
-                <ul className="mb-6 mt-4 space-y-2">
-                  <li className="flex items-center">
-                    <CheckCircle2 className="mr-2 h-4 w-4 text-primary" />
-                    <span>Unlimited tables</span>
-                  </li>
-                  <li className="flex items-center">
-                    <CheckCircle2 className="mr-2 h-4 w-4 text-primary" />
-                    <span>Real-time updates</span>
-                  </li>
-                  <li className="flex items-center">
-                    <CheckCircle2 className="mr-2 h-4 w-4 text-primary" />
-                    <span>Team collaboration</span>
-                  </li>
-                  <li className="flex items-center">
-                    <CheckCircle2 className="mr-2 h-4 w-4 text-primary" />
-                    <span>Priority support</span>
-                  </li>
-                  <li className="flex items-center">
-                    <CheckCircle2 className="mr-2 h-4 w-4 text-primary" />
-                    <span>Advanced analytics</span>
-                  </li>
-                </ul>
-                <Button variant="outline" className="mt-auto">
-                  Contact Sales
-                </Button>
-              </div>
-            </div> */}
+
             <div className="mx-auto grid max-w-3xl gap-6 py-12 md:grid-cols-2 lg:gap-12">
               <div className="flex flex-col rounded-2xl hover:shadow-lg hover:scale-[1.03] transition-all duration-500  bg-background p-6 shadow-sm">
                 <div className="mb-4">
@@ -438,12 +437,15 @@ export default function LandingPage() {
                     <span>Manual refresh</span>
                   </li>
                 </ul>
-                <Button variant="outline" className="mt-auto transition-all duration-500">
+                <Button
+                  variant="outline"
+                  className="mt-auto transition-all duration-500"
+                >
                   Get Started
                 </Button>
               </div>
               {/* <div className="flex flex-col rounded-lg border bg-background p-6 shadow-sm relative scale-110"> */}
-              <div className="flex flex-col bg-[#191919] transition-all hover:scale-[1.03] hover:bg-[#121212] text-white  rounded-2xl  hover:shadow-2xl duration-500  p-6 shadow-sm relative">
+              <div className="flex flex-col bg-[#151515] transition-all hover:scale-[1.03] hover:bg-[#101010] text-white  rounded-2xl  hover:shadow-2xl duration-500  p-6 shadow-sm relative">
                 {/* <div className="absolute -top-4 left-0 right-0 mx-auto w-fit rounded-full bg-primary px-3 py-1 text-xs font-medium text-primary-foreground">
                   Popular
                 </div> */}
@@ -451,29 +453,35 @@ export default function LandingPage() {
                   <h3 className="text-xl font-bold">Pro</h3>
                   <p className="text-muted-foreground">SheetSync Pro</p>
                   <div className="mt-4 flex items-baseline">
-                    <span className="text-3xl font-bold">$12</span>
+                    <span className="text-3xl font-bold">$5</span>
                     <span className="ml-1 text-muted-foreground">/month</span>
                   </div>
                 </div>
                 <ul className="mb-6 mt-4 space-y-2">
                   <li className="flex items-center">
-                    <CheckCircle2 className="mr-2 h-4 w-4 text-primary text-green-500" />
+                    <CheckCircle2 className="mr-2 h-4 w-4 text-green-500" />
                     <span>Up to 20 tables</span>
                   </li>
                   <li className="flex items-center">
-                    <CheckCircle2 className="mr-2 h-4 w-4 text-primary text-green-500" />
+                    <CheckCircle2 className="mr-2 h-4 w-4 text-green-500" />
                     <span>Advanced search</span>
                   </li>
                   <li className="flex items-center">
-                    <CheckCircle2 className="mr-2 h-4 w-4 text-primary text-green-500" />
+                    <CheckCircle2 className="mr-2 h-4 w-4 text-green-500" />
                     <span>Auto-refresh (every 5 min)</span>
                   </li>
                   <li className="flex items-center">
-                    <CheckCircle2 className="mr-2 h-4 w-4 text-primary text-green-500" />
+                    <CheckCircle2 className="mr-2 h-4 w-4 text-green-500" />
                     <span>Custom column types</span>
                   </li>
                 </ul>
-                <Button variant="secondary" className="mt-auto transition-all duration-500">Get Started</Button>
+                <Button
+                  onClick={handleSubscribe}
+                  variant="secondary"
+                  className="mt-auto transition-all duration-500 hover:bg-green-700 hover:text-white"
+                >
+                  Subscribe
+                </Button>
               </div>
             </div>
           </div>
@@ -719,7 +727,7 @@ export default function LandingPage() {
           </div>
           <div className="flex justify-between gap-4">
             <p className="text-sm text-muted-foreground">
-              &copy; {new Date().getFullYear()} SheetSync. All rights reserved.
+              &copy; {year ?? '----'} SheetSync. All rights reserved.
             </p>
             <div className="flex gap-4">
               <Link

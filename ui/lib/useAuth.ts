@@ -12,6 +12,8 @@ export function useAuth(redirect = true) {
   useEffect(() => {
     const token = localStorage.getItem("token");
 
+    console.log(token)
+
     if (!token) {
       setLoading(false);
       // if (redirect) router.push("/app/auth");

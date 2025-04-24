@@ -248,7 +248,7 @@ export default function TablePage({
           </p>
           <p className="text-muted-foreground mb-6">{table.description}</p>
           <TableView table={table} data={tableData} />
-        </>
+        </> 
       ) : (
         <Card className="p-6 text-center">
           <p>Table not found or error loading data</p>

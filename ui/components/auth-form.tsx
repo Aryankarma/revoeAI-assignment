@@ -22,6 +22,7 @@ export function AuthForm() {
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
   const [password, setPassword] = useState("");
+  
   const [isRegister, setIsRegister] = useState(false);
   const router = useRouter();
   const params = useSearchParams();
