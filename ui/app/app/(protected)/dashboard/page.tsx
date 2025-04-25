@@ -28,9 +28,9 @@ export default function Dashboard() {
   // for authentication
   const { isAuthenticated, loading } = useAuth();
 
-  if (loading) {
-    return <p>loading...</p>;
-  }
+  // if (loading) {
+  //   return <p>loading...</p>;
+  // }
 
   if (!isAuthenticated) return null;
 

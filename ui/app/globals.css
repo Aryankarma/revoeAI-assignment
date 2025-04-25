@@ -74,3 +74,9 @@ body {
     @apply bg-background text-foreground;
   }
 }
+
+
+#nprogress .bar {
+  background: #555555; /* Indigo-500 or any Tailwind color */
+  height: 2px;
+}
