@@ -15,7 +15,8 @@ router.get("/createSubscription", async (req, res) => {
       plan_id: "plan_QMmiN4YrD79qf6", // Pro Plan ID
       total_count: 1, // active for 1 months
       customer_notify: 1,
-    });
+    })
+    
     console.log(subscription);
 
     res.json({ subscriptionId: subscription.id });

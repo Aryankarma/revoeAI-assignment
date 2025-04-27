@@ -178,7 +178,7 @@ export default function TablePage({
       <div className="mb-6 flex items-center justify-between">
         <Button variant="ghost" onClick={() => router.back()}>
           <ArrowLeft className="mr-2 h-4 w-4" />
-          Back to Dashboard
+          Dashboard
         </Button>
         <div className="flex gap-3 flex-row-reverse">
           <Button

@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ModeToggle } from "@/components/mode-toggle";
@@ -10,7 +10,10 @@ import { TableList } from "@/components/table-list";
 import { UserDropdown } from "@/components/ui/userDropdown";
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
-import { useTheme } from "next-themes"
+import { useTheme } from "next-themes";
+import axios from "axios";
+import { toast } from "sonner";
+import { DashboardConfigType } from "@/lib/types";
 
 const data = {
   user: {
@@ -23,10 +26,43 @@ const data = {
 export default function Dashboard() {
   const router = useRouter();
   const [query, setQuery] = useState("");
-  
+  const [dashboardConfig, setDashboardConfig] =
+    useState<DashboardConfigType | null>(null);
 
   // for authentication
   const { isAuthenticated, loading } = useAuth();
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+
+    console.log("use effect");
+
+    const getDashboardConfig = async () => {
+      try {
+        const dashoboardConfig: any = await axios.get(
+          "http://localhost:5000/api/user/getDashboardConfig",
+          {
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        if (dashoboardConfig?.data?.success) {
+          console.log(dashoboardConfig.data);
+          setDashboardConfig(dashoboardConfig.data);
+        } else {
+          toast("Error fetching Dashboard Config.");
+        }
+      } catch (error) {
+        toast("Error fetching Dashboard Config, check console.");
+        console.log("There was some error fetching dashboard configs: ", error);
+      }
+    };
+
+    getDashboardConfig();
+  }, []);
 
   // if (loading) {
   //   return <p>loading...</p>;
@@ -45,16 +81,18 @@ export default function Dashboard() {
       <header className="sticky top-0 z-10 border-b bg-background">
         <div className="flex h-16 items-center justify-between">
           <h1 className="text-xl mr-24 font-semibold">Dashboard</h1>
-          <div className="relative w-full max-w-md">
-            <Search className="absolute left-3 top-2 h-5 w-5 text-muted-foreground" />
-            <Input
-              type="text"
-              placeholder={"Search sheets"}
-              className="pl-10"
-              value={query}
-              onChange={handleInputChange}
-            />
-          </div>
+          {dashboardConfig?.isPro ? (
+            <div className="relative w-full max-w-md">
+              <Search className="absolute left-3 top-2 h-5 w-5 text-muted-foreground" />
+              <Input
+                type="text"
+                placeholder={"Search sheets"}
+                className="pl-10"
+                value={query}
+                onChange={handleInputChange}
+              />
+            </div>
+          ) : null}
 
           <div className="flex gap-3">
             <Link href="/app/create-table">
@@ -64,14 +102,24 @@ export default function Dashboard() {
               </Button>
             </Link>
             <ModeToggle />
-            <UserDropdown user={data.user} />
+            <UserDropdown
+              user={
+                dashboardConfig
+                  ? {
+                      name: dashboardConfig.userData.name,
+                      email: dashboardConfig.userData.email,
+                      avatar: "./avatar.jpg",
+                    }
+                  : null
+              }
+            />
           </div>
         </div>
       </header>
       <main className="flex-1">
         <div className="py-4">
           <div className="grid gap-6">
-            <TableList />
+            <TableList dashboardConfig={dashboardConfig} />
           </div>
         </div>
       </main>

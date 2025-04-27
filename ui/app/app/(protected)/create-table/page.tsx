@@ -37,24 +37,6 @@ export default function CreateTablePage() {
   const [loading, setLoading] = useState(true);
   const [isClient, setIsClient] = useState(false);
 
-  const addColumn = () => {
-    setColumns([
-      ...columns,
-      { name: `Column ${columns.length + 1}`, type: "text" },
-    ]);
-  };
-
-  const removeColumn = (index: number) => {
-    setColumns(columns.filter((_, i) => i !== index));
-  };
-
-  const updateColumn = (index: number, field: keyof Column, value: string) => {
-    setColumns(
-      columns.map((col, i) => (i === index ? { ...col, [field]: value } : col))
-    );
-  };
-
-  
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -169,11 +151,31 @@ export default function CreateTablePage() {
     return { columns, rows };
   }
 
+
+  const addColumn = () => {
+    setColumns([
+      ...columns,
+      { name: `Column ${columns.length + 1}`, type: "text" },
+    ]);
+  };
+
+  const removeColumn = (index: number) => {
+    setColumns(columns.filter((_, i) => i !== index));
+  };
+
+  const updateColumn = (index: number, field: keyof Column, value: string) => {
+    setColumns(
+      columns.map((col, i) => (i === index ? { ...col, [field]: value } : col))
+    );
+  };
+
+  
+
   return (
     <div className="py-4">
       <Button variant="ghost" onClick={() => router.back()} className="mb-6">
         <ArrowLeft className="mr-2 h-4 w-4" />
-        Back to Dashboard
+        Dashboard
       </Button>
       <Card className="mx-auto max-w-3xl">
         <form onSubmit={handleSubmit}>

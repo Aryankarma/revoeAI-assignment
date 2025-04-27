@@ -8,6 +8,7 @@ import { config } from 'dotenv';
 import authRoutes from './routes/authRoutes.js';
 import sheetRoutes from './routes/sheetRoutes.js';
 import paymentRoutes from './routes/paymentRoutes.js';
+import userRoutes from './routes/userRoutes.js'
 import protect from './middleware/authMiddleware.js';
 
 config();
@@ -46,3 +47,4 @@ app.listen(PORT, () => {
 app.use('/api/auth', authRoutes);
 app.use('/api/sheet', protect, sheetRoutes);
 app.use('/api/payment', protect, paymentRoutes);
+app.use('/api/user', protect, userRoutes);

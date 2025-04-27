@@ -15,7 +15,7 @@ const protect = (req, res, next) => {
     try {
         const decoded = verify(token, process.env.JWT_SECRET);
         req.user = decoded.id;
-        console.log(req.user)
+        console.log("consoling user: ", req.user)
         next();
     } catch (error) {
         console.log(error)

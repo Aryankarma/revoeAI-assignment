@@ -121,7 +121,7 @@ router.get("/getAllTables", protect, async (req, res) => {
       columnCount: table.columns.length,
       updatedAt: table.lastUpdated,
     }));
-
+    console.log("got all sheets")
     res.json({
       success: true,
       tables: tableDataDashboard,

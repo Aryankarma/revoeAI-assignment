@@ -23,16 +23,17 @@ import { useTheme } from "next-themes";
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { toast } from "sonner";
+import { useAuth } from "@/lib/useAuth";
 
 export default function LandingPage() {
   const theme = useTheme();
   const [razorpayLoaded, setRazorpayLoaded] = useState(false);
-  const [year, setYear] = useState<number | null>(null); // for footer
+  const [year, setYear] = useState<number | null>(null);
+  const { isAuthenticated, loading } = useAuth();
 
   useEffect(() => {
     setYear(new Date().getFullYear());
   }, []);
-
 
   useEffect(() => {
     const script = document.createElement("script");
@@ -96,7 +97,7 @@ export default function LandingPage() {
           );
 
           console.log("verifyStatus: ", verifyStatus);
-          
+
           if (!verifyStatus.ok) {
             const error = await verifyStatus.json();
             console.log("error", error);
@@ -176,28 +177,39 @@ export default function LandingPage() {
               FAQ
             </button>
           </nav>
-          <div className="flex items-center gap-4">
-            <Link
-              href={{
-                pathname: "/app/auth",
-                query: { q: "login" },
-              }}
-              className="text-sm font-medium hover:text-primary"
-            >
-              Log in
-            </Link>
-            <Link
-              href={{
-                pathname: "/app/auth",
-                query: { q: "register" },
-              }}
-            >
-              <Button className="group">
-                Get Started
-                <ArrowRight className="ml-0 h-4 w-4 transform transition-transform duration-300 group-hover:translate-x-1" />
-              </Button>
-            </Link>
-          </div>
+          {isAuthenticated ? (
+            <div className="flex items-center gap-4">
+              <Link href={"/app/dashboard"}>
+                <Button className="group">
+                  Dashboard
+                  <ArrowRight className="ml-0 h-4 w-4 transform transition-transform duration-300 group-hover:translate-x-1" />
+                </Button>
+              </Link>
+            </div>
+          ) : (
+            <div className="flex items-center gap-4">
+              <Link
+                href={{
+                  pathname: "/app/auth",
+                  query: { q: "login" },
+                }}
+                className="text-sm font-medium hover:text-primary"
+              >
+                Log in
+              </Link>
+              <Link
+                href={{
+                  pathname: "/app/auth",
+                  query: { q: "register" },
+                }}
+              >
+                <Button className="group">
+                  Get Started
+                  <ArrowRight className="ml-0 h-4 w-4 transform transition-transform duration-300 group-hover:translate-x-1" />
+                </Button>
+              </Link>
+            </div>
+          )}
         </div>
       </header>
       <main className="flex-1">
@@ -217,17 +229,26 @@ export default function LandingPage() {
                   </p>
                 </div>
                 <div className="flex flex-col gap-2 min-[400px]:flex-row">
-                  <Link
-                    href={{
-                      pathname: "/app/auth",
-                      query: { q: "login" },
-                    }}
-                  >
-                    <Button className="group" size="lg">
-                      Start for Free
-                      <ArrowRight className="ml-1 h-4 w-4 transform transition-transform duration-300 group-hover:translate-x-1" />
-                    </Button>
-                  </Link>
+                  {isAuthenticated ? (
+                    <Link href={"/app/dashboard"}>
+                      <Button className="group" size="lg">
+                        Dashboard
+                        <ArrowRight className="ml-1 h-4 w-4 transform transition-transform duration-300 group-hover:translate-x-1" />
+                      </Button>
+                    </Link>
+                  ) : (
+                    <Link
+                      href={{
+                        pathname: "/app/auth",
+                        query: { q: "login" },
+                      }}
+                    >
+                      <Button className="group" size="lg">
+                        Start for Free
+                        <ArrowRight className="ml-1 h-4 w-4 transform transition-transform duration-300 group-hover:translate-x-1" />
+                      </Button>
+                    </Link>
+                  )}
                   <Button variant="outline" size="lg">
                     See Demo
                   </Button>
@@ -269,7 +290,7 @@ export default function LandingPage() {
                 </p>
               </div>
             </div>
-            <div className="mx-auto grid max-w-5xl items-stretch gap-6 py-12 md:grid-cols-2 lg:grid-cols-3 lg:gap-10">
+            <div className="mx-auto grid max-w-6xl items-stretch gap-6 py-12 md:grid-cols-2 lg:grid-cols-4 lg:gap-4">
               {[
                 {
                   icon: (
@@ -278,19 +299,19 @@ export default function LandingPage() {
                   title: "Easy Connection",
                   desc: "Connect to any public Google Sheet with just a URL and start managing your data instantly.",
                 },
-                {
-                  icon: (
-                    <Columns className="h-6 w-6 text-primary group-hover:rotate-6 transition-transform duration-300" />
-                  ),
-                  title: "Dynamic Columns",
-                  desc: "Add and customize columns on the fly to organize your data exactly how you need it.",
-                },
+                // {
+                //   icon: (
+                //     <Columns className="h-6 w-6 text-primary group-hover:rotate-6 transition-transform duration-300" />
+                //   ),
+                //   title: "Dynamic Columns",
+                //   desc: "Add and customize columns on the fly to organize your data exactly how you need it.",
+                // },
                 {
                   icon: (
                     <RefreshCw className="h-6 w-6 text-primary group-hover:rotate-12 transition-transform duration-300" />
                   ),
-                  title: "Real-time Updates",
-                  desc: "See changes instantly with real-time synchronization between SheetSync and your Google Sheets.",
+                  title: "Auto-Sync Data",
+                  desc: "Get updated sheets with auto-synchronization between SheetSync and your Google Sheets.",
                 },
                 {
                   icon: (
@@ -306,17 +327,17 @@ export default function LandingPage() {
                   title: "Multiple Tables",
                   desc: "Manage multiple sheets from a single dashboard with organized, clean interfaces.",
                 },
-                {
-                  icon: (
-                    <Clock className="h-6 w-6 text-primary group-hover:scale-110 transition-transform duration-300" />
-                  ),
-                  title: "Version History",
-                  desc: "Track changes with timestamps and see when your data was last updated.",
-                },
+                // {
+                //   icon: (
+                //     <Clock className="h-6 w-6 text-primary group-hover:scale-110 transition-transform duration-300" />
+                //   ),
+                //   title: "Version History",
+                //   desc: "Track changes with timestamps and see when your data was last updated.",
+                // },
               ].map(({ icon, title, desc }, i) => (
                 <div
                   key={i}
-                  className="group flex flex-col items-center space-y-3 rounded-2xl border border-transparent bg-background p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-black/80 hover:shadow-md hover:shadow-primary/20 cursor-default"
+                  className="group flex flex-col items-center space-y-3 rounded-2xl border border-transparent bg-background p-6  shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-black/80 hover:shadow-md hover:shadow-primary/20 cursor-default"
                 >
                   <div className="rounded-full bg-primary/10 p-3 transition-colors duration-300 group-hover:bg-primary/20">
                     {icon}
@@ -414,7 +435,7 @@ export default function LandingPage() {
             </div>
 
             <div className="mx-auto grid max-w-3xl gap-6 py-12 md:grid-cols-2 lg:gap-12">
-              <div className="flex flex-col rounded-2xl hover:shadow-lg hover:scale-[1.03] transition-all duration-500  bg-background p-6 shadow-sm">
+              <div className="flex flex-col rounded-2xl hover:shadow-xl transition-all duration-500  bg-background p-6 shadow-sm">
                 <div className="mb-4">
                   <h3 className="text-xl font-bold">Free</h3>
                   <p className="text-muted-foreground">SheetSync Free</p>
@@ -426,7 +447,7 @@ export default function LandingPage() {
                 <ul className="mb-6 mt-4 space-y-2">
                   <li className="flex items-center">
                     <CheckCircle2 className="mr-2 h-4 w-4 text-primary" />
-                    <span>Up to 3 tables</span>
+                    <span>Up to 5 tables</span>
                   </li>
                   <li className="flex items-center">
                     <CheckCircle2 className="mr-2 h-4 w-4 text-primary" />
@@ -435,6 +456,10 @@ export default function LandingPage() {
                   <li className="flex items-center">
                     <CheckCircle2 className="mr-2 h-4 w-4 text-primary" />
                     <span>Manual refresh</span>
+                  </li>
+                  <li className="flex items-center">
+                    <CheckCircle2 className="mr-2 h-4 w-4 text-primary" />
+                    <span>Basic dashboard</span>
                   </li>
                 </ul>
                 <Button
@@ -445,7 +470,7 @@ export default function LandingPage() {
                 </Button>
               </div>
               {/* <div className="flex flex-col rounded-lg border bg-background p-6 shadow-sm relative scale-110"> */}
-              <div className="flex flex-col bg-[#151515] transition-all hover:scale-[1.03] hover:bg-[#101010] text-white  rounded-2xl  hover:shadow-2xl duration-500  p-6 shadow-sm relative">
+              <div className="flex flex-col bg-[#151515] transition-all hover:bg-[#080808] text-white  rounded-xl  hover:shadow-2xl duration-500  p-6 shadow-sm relative">
                 {/* <div className="absolute -top-4 left-0 right-0 mx-auto w-fit rounded-full bg-primary px-3 py-1 text-xs font-medium text-primary-foreground">
                   Popular
                 </div> */}
@@ -468,11 +493,15 @@ export default function LandingPage() {
                   </li>
                   <li className="flex items-center">
                     <CheckCircle2 className="mr-2 h-4 w-4 text-green-500" />
-                    <span>Auto-refresh (every 5 min)</span>
+                    <span>Auto-Sync</span>
                   </li>
                   <li className="flex items-center">
                     <CheckCircle2 className="mr-2 h-4 w-4 text-green-500" />
                     <span>Custom column types</span>
+                  </li>
+                  <li className="flex items-center">
+                    <CheckCircle2 className="mr-2 h-4 w-4 text-green-500" />
+                    <span>Future upgrades</span>
                   </li>
                 </ul>
                 <Button
@@ -727,7 +756,7 @@ export default function LandingPage() {
           </div>
           <div className="flex justify-between gap-4">
             <p className="text-sm text-muted-foreground">
-              &copy; {year ?? '----'} SheetSync. All rights reserved.
+              &copy; {year ?? "----"} SheetSync. All rights reserved.
             </p>
             <div className="flex gap-4">
               <Link

@@ -25,14 +25,17 @@ import type { TableDashboard } from "@/lib/types";
 import { MagicCard } from "./magicui/magic-card";
 import { toast } from "sonner";
 import { NODE_ESM_RESOLVE_OPTIONS } from "next/dist/build/webpack-config";
+import { DashboardConfigType } from "@/lib/types";
 
-export function TableList() {
+export function TableList({dashboardConfig} : {dashboardConfig: DashboardConfigType | null}) {
   const [tables, setTables] = useState<TableDashboard[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [editingTable, setEditingTable] = useState<string | null>(null);
   const [editedName, setEditedName] = useState<string>("");
   const [deletingTable, setDeletingTable] = useState<string | null>(null);
+
+  console.log(dashboardConfig)
 
   const loadAllTables = async () => {
     setLoading(true);
@@ -65,26 +68,6 @@ export function TableList() {
       setLoading(false);
       setRefreshing(false);
     }
-  };
-
-  useEffect(() => {
-    setTimeout(() => {
-      loadAllTables();
-    }, 1000);
-  }, []);
-
-  const handleRefresh = () => {
-    setRefreshing(true);
-    loadAllTables();
-  };
-
-  const handleEditClick = (tableId: string, currentName: string) => {
-    setEditingTable(tableId);
-    setEditedName(currentName);
-  };
-
-  const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setEditedName(e.target.value);
   };
 
   const handleBlurOrEnter = async (tableId: string) => {
@@ -150,6 +133,28 @@ export function TableList() {
 
     }
   };
+
+
+  useEffect(() => {
+    setTimeout(() => {
+      loadAllTables();
+    }, 1000);
+  }, []);
+
+  const handleRefresh = () => {
+    setRefreshing(true);
+    loadAllTables();
+  };
+
+  const handleEditClick = (tableId: string, currentName: string) => {
+    setEditingTable(tableId);
+    setEditedName(currentName);
+  };
+
+  const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setEditedName(e.target.value);
+  };
+
 
   if (loading) {
     return (
