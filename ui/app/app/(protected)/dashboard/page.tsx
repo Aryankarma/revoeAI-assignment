@@ -13,7 +13,7 @@ import { Search } from "lucide-react";
 import { useTheme } from "next-themes";
 import axios from "axios";
 import { toast } from "sonner";
-import { useDashboardConfig } from "@/store/appStore";
+import { useDashboardConfig, useTableManager } from "@/store/appStore";
 
 const data = {
   user: {
@@ -27,7 +27,7 @@ export default function Dashboard() {
   const router = useRouter();
   const [query, setQuery] = useState("");
   const { dashboardConfig, setDashboardConfig } = useDashboardConfig();
-  
+  const {tables} = useTableManager()
 
   // for authentication
   const { isAuthenticated, loading } = useAuth();
@@ -96,7 +96,7 @@ export default function Dashboard() {
 
           <div className="flex gap-3">
             <Link href="/app/create-table">
-              <Button variant={"outline"}>
+              <Button disabled={(dashboardConfig?.isPro && tables.length > 20) || (!dashboardConfig?.isPro && tables.length > 5)} variant={"outline"}>
                 <PlusCircle className="mr-2 h-4 w-4" />
                 Create Table
               </Button>

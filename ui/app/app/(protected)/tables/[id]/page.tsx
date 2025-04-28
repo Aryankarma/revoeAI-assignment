@@ -13,6 +13,7 @@ import axios from "axios";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
+import { useDashboardConfig } from "@/store/appStore";
 
 
 export default function TablePage({
@@ -29,6 +30,8 @@ export default function TablePage({
   const [syncOn, setSyncOn] = useState(false);
   const [editingTable, setEditingTable] = useState<string | null>(null);
   const [editedName, setEditedName] = useState<string>("");
+
+  const { dashboardConfig } = useDashboardConfig();
 
   useEffect(() => {
     loadTableById();
@@ -192,7 +195,7 @@ export default function TablePage({
             />
             Refresh Data
           </Button>
-          <div className="flex items-center space-x-2">
+          {dashboardConfig?.isPro ? <div className={`flex items-center space-x-2`}>
             <Switch
               id="Auto-Sync"
               checked={syncOn}
@@ -202,6 +205,7 @@ export default function TablePage({
               Auto Sync
             </Label>
           </div>
+          : null}
         </div>
       </div>
 
