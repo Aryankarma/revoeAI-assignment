@@ -13,7 +13,7 @@ import { Search } from "lucide-react";
 import { useTheme } from "next-themes";
 import axios from "axios";
 import { toast } from "sonner";
-import { DashboardConfigType } from "@/lib/types";
+import { useDashboardConfig } from "@/store/appStore";
 
 const data = {
   user: {
@@ -26,8 +26,8 @@ const data = {
 export default function Dashboard() {
   const router = useRouter();
   const [query, setQuery] = useState("");
-  const [dashboardConfig, setDashboardConfig] =
-    useState<DashboardConfigType | null>(null);
+  const { dashboardConfig, setDashboardConfig } = useDashboardConfig();
+  
 
   // for authentication
   const { isAuthenticated, loading } = useAuth();
@@ -119,7 +119,7 @@ export default function Dashboard() {
       <main className="flex-1">
         <div className="py-4">
           <div className="grid gap-6">
-            <TableList dashboardConfig={dashboardConfig} />
+            <TableList />
           </div>
         </div>
       </main>

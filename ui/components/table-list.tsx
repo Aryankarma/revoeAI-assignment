@@ -25,22 +25,20 @@ import type { TableDashboard } from "@/lib/types";
 import { MagicCard } from "./magicui/magic-card";
 import { toast } from "sonner";
 import { NODE_ESM_RESOLVE_OPTIONS } from "next/dist/build/webpack-config";
-import { DashboardConfigType } from "@/lib/types";
+import { useTableManager } from "@/store/appStore";
 
-export function TableList({dashboardConfig} : {dashboardConfig: DashboardConfigType | null}) {
-  const [tables, setTables] = useState<TableDashboard[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
+export function TableList() {
+  const { tables, setTables, loading, setLoading, refreshing, setRefreshing, deletedTableID, setDeletedTableID } =
+    useTableManager();
+
   const [editingTable, setEditingTable] = useState<string | null>(null);
   const [editedName, setEditedName] = useState<string>("");
   const [deletingTable, setDeletingTable] = useState<string | null>(null);
 
-  console.log(dashboardConfig)
-
   const loadAllTables = async () => {
     setLoading(true);
-    setRefreshing(true); 
- 
+    setRefreshing(true);
+
     try {
       const token = localStorage.getItem("token");
       if (!token) throw new Error("No auth token found");
@@ -55,12 +53,12 @@ export function TableList({dashboardConfig} : {dashboardConfig: DashboardConfigT
         }
       );
 
-      console.log("fetched tables data from new api - ", res.data)
+      console.log("fetched tables data from new api - ", res.data);
 
       if (res.data.success) {
         setTables(res.data.tables);
       } else {
-        console.error("Failed to fetch tables:", res.data.message)
+        console.error("Failed to fetch tables:", res.data.message);
       }
     } catch (error) {
       console.error("Error fetching tables:", error);
@@ -72,7 +70,9 @@ export function TableList({dashboardConfig} : {dashboardConfig: DashboardConfigT
 
   const handleBlurOrEnter = async (tableId: string) => {
     if (
-      !editedName.trim() || editedName.trim() == tables.filter((table) => table.id == tableId)[0].name.trim()
+      !editedName.trim() ||
+      editedName.trim() ==
+        tables.filter((table) => table.id == tableId)[0].name.trim()
     ) {
       setEditingTable(null);
       return;
@@ -100,13 +100,14 @@ export function TableList({dashboardConfig} : {dashboardConfig: DashboardConfigT
     }
   };
 
+  // when we delete a table, just remove the table by tableid from the all tables state management, don't refresh the page and fetch all tables...
   const handleDeleteTable = async (tableId: string) => {
     setDeletingTable(tableId);
 
     try {
       const token = localStorage.getItem("token");
       if (!token) throw new Error("No auth token found");
-      console.log(`http://localhost:5000/api/sheet/deleteTable/${tableId}`)
+      console.log(`http://localhost:5000/api/sheet/deleteTable/${tableId}`);
 
       const res: any = await axios.delete(
         `http://localhost:5000/api/sheet/deleteTable/${tableId}`,
@@ -117,23 +118,22 @@ export function TableList({dashboardConfig} : {dashboardConfig: DashboardConfigT
         }
       );
 
-      console.log(res)
+      console.log("delete table response: ", res);
 
       if (res.data.success) {
         toast("Table deleted successfully.");
-        handleRefresh()
+        setDeletedTableID(tableId)
+        handleRefresh();
       } else {
         toast("Error while deleting table.");
       }
     } catch (error) {
       console.error("Error deleting table:", error);
       toast("An error occured while deleting table.");
-    } finally{
-      setDeletingTable(null)
-
+    } finally {
+      setDeletingTable(null);
     }
   };
-
 
   useEffect(() => {
     setTimeout(() => {
@@ -154,7 +154,6 @@ export function TableList({dashboardConfig} : {dashboardConfig: DashboardConfigT
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setEditedName(e.target.value);
   };
-
 
   if (loading) {
     return (
@@ -199,7 +198,7 @@ export function TableList({dashboardConfig} : {dashboardConfig: DashboardConfigT
   }
 
   return (
-    <div >
+    <div>
       <div className="mb-6 flex items-center justify-between">
         <h2 className="text-lg font-medium">Your Tables</h2>
         <Button
@@ -290,5 +289,5 @@ export function TableList({dashboardConfig} : {dashboardConfig: DashboardConfigT
         ))}
       </div>
     </div>
-  )
+  );
 }

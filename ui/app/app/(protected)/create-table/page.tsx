@@ -1,4 +1,5 @@
 "use client";
+
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, Plus, Trash2 } from "lucide-react";
@@ -24,7 +25,9 @@ import {
 import axios from "axios";
 import { toast } from "sonner";
 
+
 export default function CreateTablePage() {
+  // no zustand store for crate-table page, as all we don't need to have this data anywhere else
   const router = useRouter();
   const [columns, setColumns] = useState<Column[]>([]);
   const [sheetUrl, setSheetUrl] = useState<string>("");

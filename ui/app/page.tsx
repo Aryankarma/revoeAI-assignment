@@ -24,12 +24,13 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import { toast } from "sonner";
 import { useAuth } from "@/lib/useAuth";
+import { useLandingPageStore } from "@/store/appStore";
 
 export default function LandingPage() {
   const theme = useTheme();
-  const [razorpayLoaded, setRazorpayLoaded] = useState(false);
-  const [year, setYear] = useState<number | null>(null);
   const { isAuthenticated, loading } = useAuth();
+
+  const { razorpayLoaded, setRazorpayLoaded, year, setYear } = useLandingPageStore();
 
   useEffect(() => {
     setYear(new Date().getFullYear());
