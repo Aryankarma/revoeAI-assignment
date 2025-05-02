@@ -11,7 +11,7 @@ const columnSchema = new mongoose.Schema({
   type: { type: String, required: true },
 });
 
-const rowSchema = new mongoose.Schema({}, { strict: false });
+const rowSchema = new mongoose.Schema({}, { strict: false })
 
 const tableSchema = new mongoose.Schema(
   {
@@ -41,7 +41,7 @@ const tableSchema = new mongoose.Schema(
 );
 
 // adding last updated at field
-tableSchema.add({   
+tableSchema.add({
     lastUpdated: {
         type: Date,
         default: Date.now()
