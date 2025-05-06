@@ -1,18 +1,27 @@
 import User from '../models/User.js';
-import WebhookEvent from '../models/WebhookEvent.js';
+import WebhookEvent from '../models/webhookEvent.js';
 
 export const handleRazorpayWebhook = async (req, res) => {
   try {
     // Return 200 quickly to acknowledge receipt
     res.status(200).send({ status: 'received' });
     
-    const { event, payload } = req.body;
+    const { event, payload } = req.razorpayEvent;
+
     console.log(`Received Razorpay webhook: ${event}`);
+
+    // Extract the event ID from the payload (example: subscription.id)
+    let eventId = payload.subscription?.entity?.id || payload.payment?.entity?.id;
+
+    if (!eventId) {
+      console.error("Event ID not found in payload");
+      return res.status(400).json({ error: "Event ID missing" });
+    }
     
     // Check for duplicate event
-    const isDuplicate = await WebhookEvent.findOne({ eventId: req.body.id });
+    const isDuplicate = await WebhookEvent.findOne({ eventId: id });
     if (isDuplicate) {
-      console.log(`Duplicate event ${req.body.id} skipped`);
+      console.log(`Duplicate event ${id} skipped`);
       return;
     }
     
@@ -44,9 +53,9 @@ export const handleRazorpayWebhook = async (req, res) => {
     
     // Record processed event
     await WebhookEvent.create({
-      eventId: req.body.id,
+      eventId: id,
       eventType: event,
-      payload: req.body,
+      payload: req.razorpayEvent,
       processedAt: new Date()
     });
     

@@ -30,7 +30,8 @@ export default function LandingPage() {
   const theme = useTheme();
   const { isAuthenticated, loading } = useAuth();
 
-  const { razorpayLoaded, setRazorpayLoaded, year, setYear } = useLandingPageStore();
+  const { razorpayLoaded, setRazorpayLoaded, year, setYear } =
+    useLandingPageStore();
 
   useEffect(() => {
     setYear(new Date().getFullYear());
@@ -490,15 +491,15 @@ export default function LandingPage() {
                   </li>
                   <li className="flex items-center">
                     <CheckCircle2 className="mr-2 h-4 w-4 text-green-500" />
-                    <span>Advanced search</span>
-                  </li>
-                  <li className="flex items-center">
-                    <CheckCircle2 className="mr-2 h-4 w-4 text-green-500" />
                     <span>Auto-Sync</span>
                   </li>
                   <li className="flex items-center">
                     <CheckCircle2 className="mr-2 h-4 w-4 text-green-500" />
-                    <span>Custom column types</span>
+                    <span>Advanced search</span>
+                  </li>
+                  <li className="flex items-center">
+                    <CheckCircle2 className="mr-2 h-4 w-4 text-green-500" />
+                    <span>Advance Dashboard (Upcoming)</span>
                   </li>
                   <li className="flex items-center">
                     <CheckCircle2 className="mr-2 h-4 w-4 text-green-500" />

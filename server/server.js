@@ -11,6 +11,7 @@ import paymentRoutes from "./routes/paymentRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
 import webhookRoutes from "./routes/webhookRoutes.js";
 import protect from "./middleware/authMiddleware.js";
+import bodyParser from "body-parser";
 
 config();
 
@@ -23,23 +24,16 @@ console.log(process.env.MONGO_URI);
 app.use(cors());
 
 
-// Add the raw body parser middleware for webhooks
-app.use((req, res, next) => {
-  if (req.originalUrl === '/api/webhooks/razorpay') {
-    let data = '';
-    req.on('data', chunk => {
-      data += chunk.toString();
-    });
-    req.on('end', () => {
-      req.rawBody = data;
-      req.body = JSON.parse(data);
-      next();
-    });
-  } else {
+// setting up wbehook for razorpay
+app.use(
+  "/api/webhooks",
+  bodyParser.raw({ type: "application/json" }),
+  (req, res, next) => {
+    console.log("inside webhook middleware function in the main server");
+    req.rawBody = req.body;
     next();
   }
-});
-
+);
 
 
 // Increase JSON payload limit (default - 100kb)
@@ -58,42 +52,9 @@ connect(process.env.MONGO_URI, {
     console.log("Error connecting to MongoDB:", error);
   });
 
-// setting up wbehook for razorpay
-app.use(
-  "/webhooks/razorpay",
-  bodyParser.raw({ type: "application/json" }),
-  (req, res, next) => {
-    req.rawBody = req.body;
-    next();
-  },
-  bodyParser.json()
-);
-
-// Webhook endpoint
-app.post("/webhooks/razorpay", async (req, res) => {
-  try {
-    // Verify webhook signature (see next step)
-    const isValidSignature = verifyWebhookSignature(req)
-
-    if (!isValidSignature) {
-      return res.status(400).send({ error: "Invalid signature" })
-    }
-
-    // Process the webhook event (see step 3)
-    await processWebhookEvent(req.body)
-
-    // Return a 200 response quickly
-    res.status(200).send({ status: "received" })
-  } catch (error) {
-    console.error("Webhook error:", error)
-    // Still return 200 so Razorpay doesn't retry
-    res.status(200).send({ status: "error handled" })
-  }
-})
-
 // Test route
 app.get("/", (req, res) => {
-  res.send("API is running...");
+  res.send("API is running on aws elastic beanstalk");
 });
 
 app.listen(PORT, () => {
@@ -104,4 +65,4 @@ app.use("/api/auth", authRoutes);
 app.use("/api/sheet", protect, sheetRoutes);
 app.use("/api/payment", protect, paymentRoutes);
 app.use("/api/user", protect, userRoutes);
-app.use('/api/webhooks', webhookRoutes);
+app.use("/api/webhooks", webhookRoutes);
